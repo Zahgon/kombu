@@ -81,7 +81,7 @@ class Publisher(messaging.Producer):
 
     @property
     def backend(self):
-        return self.channel
+        pass
 
 
 class Consumer(messaging.Consumer):
@@ -162,10 +162,7 @@ class Consumer(messaging.Consumer):
         raise NotImplementedError('Use fetch(enable_callbacks=True)')
 
     def discard_all(self, filterfunc=None):
-        if filterfunc is not None:
-            raise NotImplementedError(
-                'discard_all does not implement filters')
-        return self.purge()
+        pass
 
     def iterconsume(self, limit=None, no_ack=None):
         return _iterconsume(self.connection, self, no_ack, limit)
@@ -175,12 +172,7 @@ class Consumer(messaging.Consumer):
         return list(it)
 
     def iterqueue(self, limit=None, infinite=False):
-        for items_since_start in count():  # for infinity
-            item = self.fetch()
-            if (not infinite and item is None) or \
-                    (limit and items_since_start >= limit):
-                break
-            yield item
+        pass
 
 
 class ConsumerSet(messaging.Consumer):
@@ -208,14 +200,13 @@ class ConsumerSet(messaging.Consumer):
         return _iterconsume(self.connection, self, no_ack, limit)
 
     def discard_all(self):
-        return self.purge()
+        pass
 
     def add_consumer_from_dict(self, queue, **options):
-        return self.add_queue(Queue.from_dict(queue, **options))
+        pass
 
     def add_consumer(self, consumer):
-        for queue in consumer.queues:
-            self.add_queue(queue)
+        pass
 
     def revive(self, channel):
         self.backend = channel

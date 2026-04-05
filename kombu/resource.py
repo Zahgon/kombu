@@ -12,10 +12,7 @@ from .utils.functional import lazy
 
 
 def _after_fork_cleanup_resource(resource):
-    try:
-        resource.force_close_all()
-    except Exception:
-        pass
+    pass
 
 
 class Resource:

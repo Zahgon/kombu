@@ -19,14 +19,11 @@ INTERNAL_EXCHANGE_PREFIX = ('amq.',)
 
 
 def _reprstr(s):
-    s = repr(s)
-    if isinstance(s, str) and s.startswith("u'"):
-        return s[2:-1]
-    return s[1:-1]
+    pass
 
 
 def pretty_bindings(bindings):
-    return '[{}]'.format(', '.join(map(str, bindings)))
+    pass
 
 
 def maybe_delivery_mode(
@@ -210,15 +207,7 @@ class Exchange(MaybeChannelBound):
     def unbind_from(self, source='', routing_key='',
                     nowait=False, arguments=None, channel=None):
         """Delete previously created exchange binding from the server."""
-        if isinstance(source, Exchange):
-            source = source.name
-        return (channel or self.channel).exchange_unbind(
-            destination=self.name,
-            source=source,
-            routing_key=routing_key,
-            nowait=nowait,
-            arguments=arguments,
-        )
+        pass
 
     def Message(self, body, delivery_mode=None, properties=None, **kwargs):
         """Create message instance to be sent with :meth:`publish`.
@@ -296,7 +285,7 @@ class Exchange(MaybeChannelBound):
                                             nowait=nowait)
 
     def binding(self, routing_key='', arguments=None, unbind_arguments=None):
-        return binding(self, routing_key, arguments, unbind_arguments)
+        pass
 
     def __eq__(self, other):
         if isinstance(other, Exchange):
@@ -321,7 +310,7 @@ class Exchange(MaybeChannelBound):
 
     @property
     def can_cache_declaration(self):
-        return not self.auto_delete
+        pass
 
 
 class binding(Object):
@@ -364,11 +353,7 @@ class binding(Object):
 
     def unbind(self, entity, nowait=False, channel=None):
         """Unbind entity from this binding."""
-        entity.unbind_from(self.exchange,
-                           routing_key=self.routing_key,
-                           arguments=self.unbind_arguments,
-                           nowait=nowait,
-                           channel=channel)
+        pass
 
     def __repr__(self):
         return f'<binding: {self}>'
@@ -781,19 +766,12 @@ class Queue(MaybeChannelBound):
                                          nowait=nowait)
 
     def queue_unbind(self, arguments=None, nowait=False, channel=None):
-        return self.unbind_from(self.exchange, self.routing_key,
-                                arguments, nowait, channel)
+        pass
 
     def unbind_from(self, exchange='', routing_key='',
                     arguments=None, nowait=False, channel=None):
         """Unbind queue by deleting the binding from the server."""
-        return (channel or self.channel).queue_unbind(
-            queue=self.name,
-            exchange=exchange.name,
-            routing_key=routing_key,
-            arguments=arguments,
-            nowait=nowait,
-        )
+        pass
 
     def __eq__(self, other):
         if isinstance(other, Queue):
@@ -826,62 +804,11 @@ class Queue(MaybeChannelBound):
 
     @property
     def can_cache_declaration(self):
-        if self.queue_arguments:
-            expiring_queue = "x-expires" in self.queue_arguments
-        else:
-            expiring_queue = False
-        return not expiring_queue and not self.auto_delete
+        pass
 
     @classmethod
     def from_dict(cls, queue, **options):
-        binding_key = options.get('binding_key') or options.get('routing_key')
-
-        e_durable = options.get('exchange_durable')
-        if e_durable is None:
-            e_durable = options.get('durable')
-
-        e_auto_delete = options.get('exchange_auto_delete')
-        if e_auto_delete is None:
-            e_auto_delete = options.get('auto_delete')
-
-        q_durable = options.get('queue_durable')
-        if q_durable is None:
-            q_durable = options.get('durable')
-
-        q_auto_delete = options.get('queue_auto_delete')
-        if q_auto_delete is None:
-            q_auto_delete = options.get('auto_delete')
-
-        e_arguments = options.get('exchange_arguments')
-        q_arguments = options.get('queue_arguments')
-        b_arguments = options.get('binding_arguments')
-        c_arguments = options.get('consumer_arguments')
-        bindings = options.get('bindings')
-
-        exchange = Exchange(options.get('exchange'),
-                            type=options.get('exchange_type'),
-                            delivery_mode=options.get('delivery_mode'),
-                            routing_key=options.get('routing_key'),
-                            durable=e_durable,
-                            auto_delete=e_auto_delete,
-                            arguments=e_arguments)
-        return Queue(queue,
-                     exchange=exchange,
-                     routing_key=binding_key,
-                     durable=q_durable,
-                     exclusive=options.get('exclusive'),
-                     auto_delete=q_auto_delete,
-                     no_ack=options.get('no_ack'),
-                     queue_arguments=q_arguments,
-                     binding_arguments=b_arguments,
-                     consumer_arguments=c_arguments,
-                     bindings=bindings)
+        pass
 
     def as_dict(self, recurse=False):
-        res = super().as_dict(recurse)
-        if not recurse:
-            return res
-        bindings = res.get('bindings')
-        if bindings:
-            res['bindings'] = [b.as_dict(recurse=True) for b in bindings]
-        return res
+        pass

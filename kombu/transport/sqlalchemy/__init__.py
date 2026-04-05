@@ -94,15 +94,7 @@ class Channel(virtual.Channel):
         super().__init__(connection, **kwargs)
 
     def _configure_entity_tablenames(self, opts):
-        self.queue_tablename = opts.get('queue_tablename', 'kombu_queue')
-        self.message_tablename = opts.get('message_tablename', 'kombu_message')
-
-        #
-        # Define the model definitions.  This registers the declarative
-        # classes with the active SQLAlchemy metadata object.  This *must* be
-        # done prior to the ``create_engine`` call.
-        #
-        self.queue_cls and self.message_cls
+        pass
 
     def _engine_from_config(self):
         conninfo = self.connection.client
@@ -258,5 +250,4 @@ class Transport(virtual.Transport):
     connection_errors = (OperationalError, )
 
     def driver_version(self):
-        import sqlalchemy
-        return sqlalchemy.__version__
+        pass

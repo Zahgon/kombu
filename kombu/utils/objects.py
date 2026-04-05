@@ -61,7 +61,7 @@ class cached_property(_cached_property):
                 self.__del(instance, value)
 
     def setter(self, fset):
-        return self.__class__(self.func, fset, self.__del)
+        pass
 
     def deleter(self, fdel):
-        return self.__class__(self.func, self.__set, fdel)
+        pass

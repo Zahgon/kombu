@@ -87,37 +87,21 @@ class LRUCache(UserDict):
         return iter(self.data)
 
     def _iterate_items(self):
-        with self.mutex:
-            for k in self:
-                try:
-                    yield (k, self.data[k])
-                except KeyError:  # pragma: no cover
-                    pass
+        pass
     iteritems = _iterate_items
 
     def _iterate_values(self):
-        with self.mutex:
-            for k in self:
-                try:
-                    yield self.data[k]
-                except KeyError:  # pragma: no cover
-                    pass
+        pass
 
     itervalues = _iterate_values
 
     def _iterate_keys(self):
         # userdict.keys in py3k calls __getitem__
-        with self.mutex:
-            return self.data.keys()
+        pass
     iterkeys = _iterate_keys
 
     def incr(self, key, delta=1):
-        with self.mutex:
-            # this acts as memcached does- store as a string, but return a
-            # integer as long as it exists and we can cast it
-            newval = int(self.data.pop(key)) + delta
-            self[key] = str(newval)
-            return newval
+        pass
 
     def __getstate__(self):
         d = dict(vars(self))
@@ -136,36 +120,7 @@ class LRUCache(UserDict):
 def memoize(maxsize=None, keyfun=None, Cache=LRUCache):
     """Decorator to cache function return value."""
     def _memoize(fun):
-        mutex = threading.Lock()
-        cache = Cache(limit=maxsize)
-
-        @wraps(fun)
-        def _M(*args, **kwargs):
-            if keyfun:
-                key = keyfun(args, kwargs)
-            else:
-                key = args + (KEYWORD_MARK,) + tuple(sorted(kwargs.items()))
-            try:
-                with mutex:
-                    value = cache[key]
-            except KeyError:
-                value = fun(*args, **kwargs)
-                _M.misses += 1
-                with mutex:
-                    cache[key] = value
-            else:
-                _M.hits += 1
-            return value
-
-        def clear():
-            """Clear the cache and reset cache statistics."""
-            cache.clear()
-            _M.hits = _M.misses = 0
-
-        _M.hits = _M.misses = 0
-        _M.clear = clear
-        _M.original_func = fun
-        return _M
+        pass
 
     return _memoize
 
@@ -226,12 +181,12 @@ def is_list(obj, scalars=(Mapping, str), iters=(Iterable,)):
     ----
         Returns false if object is a mapping or string.
     """
-    return isinstance(obj, iters) and not isinstance(obj, scalars or ())
+    pass
 
 
 def maybe_list(obj, scalars=(Mapping, str)):
     """Return list of one element if ``l`` is a scalar."""
-    return obj if obj is None or is_list(obj, scalars) else [obj]
+    pass
 
 
 def dictfilter(d=None, **kw):
@@ -241,11 +196,7 @@ def dictfilter(d=None, **kw):
 
 
 def shufflecycle(it):
-    it = list(it)  # don't modify callers list
-    shuffle = random.shuffle
-    for _ in repeat(None):
-        shuffle(it)
-        yield it[0]
+    pass
 
 
 def fxrange(start=1.0, stop=None, step=1.0, repeatlast=False):
@@ -261,16 +212,7 @@ def fxrange(start=1.0, stop=None, step=1.0, repeatlast=False):
 
 
 def fxrangemax(start=1.0, stop=None, step=1.0, max=100.0):
-    sum_, cur = 0, start * 1.0
-    while 1:
-        if sum_ >= max:
-            break
-        yield cur
-        if stop:
-            cur = min(cur + step, stop)
-        else:
-            cur += step
-        sum_ += cur
+    pass
 
 
 def retry_over_time(fun, catch, args=None, kwargs=None, errback=None,
@@ -336,24 +278,15 @@ def retry_over_time(fun, catch, args=None, kwargs=None, errback=None,
 
 
 def reprkwargs(kwargs, sep=', ', fmt='{0}={1}'):
-    return sep.join(fmt.format(k, _safe_repr(v)) for k, v in kwargs.items())
+    pass
 
 
 def reprcall(name, args=(), kwargs=None, sep=', '):
-    kwargs = {} if not kwargs else kwargs
-    return '{}({}{}{})'.format(
-        name, sep.join(map(_safe_repr, args or ())),
-        (args and kwargs) and sep or '',
-        reprkwargs(kwargs, sep),
-    )
+    pass
 
 
 def accepts_argument(func, argument_name):
-    argument_spec = inspect.getfullargspec(func)
-    return (
-        argument_name in argument_spec.args or
-        argument_name in argument_spec.kwonlyargs
-    )
+    pass
 
 
 # Compat names (before kombu 3.0)

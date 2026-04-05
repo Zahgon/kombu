@@ -33,29 +33,15 @@ _node_id = None
 
 
 def get_node_id():
-    global _node_id
-    if _node_id is None:
-        _node_id = uuid4().int
-    return _node_id
+    pass
 
 
 def generate_oid(node_id, process_id, thread_id, instance):
-    ent = '{:x}-{:x}-{:x}-{:x}'.format(
-        node_id, process_id, thread_id, id(instance))
-    try:
-        ret = str(uuid3(NAMESPACE_OID, ent))
-    except ValueError:
-        ret = str(uuid5(NAMESPACE_OID, ent))
-    return ret
+    pass
 
 
 def oid_from(instance, threads=True):
-    return generate_oid(
-        get_node_id(),
-        os.getpid(),
-        threading.get_ident() if threads else 0,
-        instance,
-    )
+    pass
 
 
 class Broadcast(Queue):
@@ -104,7 +90,7 @@ class Broadcast(Queue):
 
 
 def declaration_cached(entity, channel):
-    return entity in channel.connection.client.declared_entities
+    pass
 
 
 def maybe_declare(entity, channel=None, retry=False, **retry_policy):
@@ -173,29 +159,13 @@ def _imaybe_declare(entity, channel, **retry_policy):
 
 def drain_consumer(consumer, limit=1, timeout=None, callbacks=None):
     """Drain messages from consumer instance."""
-    acc = deque()
-
-    def on_message(body, message):
-        acc.append((body, message))
-
-    consumer.callbacks = [on_message] + (callbacks or [])
-
-    with consumer:
-        for _ in eventloop(consumer.channel.connection.client,
-                           limit=limit, timeout=timeout, ignore_timeouts=True):
-            try:
-                yield acc.popleft()
-            except IndexError:
-                pass
+    pass
 
 
 def itermessages(conn, channel, queue, limit=1, timeout=None,
                  callbacks=None, **kwargs):
     """Iterator over messages."""
-    return drain_consumer(
-        conn.Consumer(queues=[queue], channel=channel, **kwargs),
-        limit=limit, timeout=timeout, callbacks=callbacks,
-    )
+    pass
 
 
 def eventloop(conn, limit=None, timeout=None, ignore_timeouts=False):
@@ -229,12 +199,7 @@ def eventloop(conn, limit=None, timeout=None, ignore_timeouts=False):
         :func:`itermessages`, which is an event loop bound to one or more
         consumers, that yields any messages received.
     """
-    for i in limit and range(limit) or count():
-        try:
-            yield conn.drain_events(timeout=timeout)
-        except socket.timeout:
-            if timeout and not ignore_timeouts:  # pragma: no cover
-                raise
+    pass
 
 
 def send_reply(exchange, req, msg,
@@ -252,47 +217,21 @@ def send_reply(exchange, req, msg,
         retry_policy (Dict): Retry settings.
         **props (Any): Extra properties.
     """
-    return producer.publish(
-        msg, exchange=exchange,
-        retry=retry, retry_policy=retry_policy,
-        **dict({'routing_key': req.properties['reply_to'],
-                'correlation_id': req.properties.get('correlation_id'),
-                'serializer': serializers.type_to_name[req.content_type],
-                'content_encoding': req.content_encoding}, **props)
-    )
+    pass
 
 
 def collect_replies(conn, channel, queue, *args, **kwargs):
     """Generator collecting replies from ``queue``."""
-    no_ack = kwargs.setdefault('no_ack', True)
-    received = False
-    try:
-        for body, message in itermessages(conn, channel, queue,
-                                          *args, **kwargs):
-            if not no_ack:
-                message.ack()
-            received = True
-            yield body
-    finally:
-        if received:
-            channel.after_reply_message_received(queue.name)
+    pass
 
 
 def _ensure_errback(exc, interval):
-    logger.error(
-        'Connection error: %r. Retry in %ss\n', exc, interval,
-        exc_info=True,
-    )
+    pass
 
 
 @contextmanager
 def _ignore_errors(conn):
-    try:
-        yield
-    except conn.connection_errors + conn.channel_errors + (
-        (conc_err,) if (conc_err := get_gevent_concurrent_error()) is not None else ()
-    ):
-        pass
+    pass
 
 
 def ignore_errors(conn, fun=None, *args, **kwargs):
@@ -323,15 +262,11 @@ def ignore_errors(conn, fun=None, *args, **kwargs):
         and not ignored.  Using this function is only acceptable in a cleanup
         phase, like when a connection is lost or at shutdown.
     """
-    if fun:
-        with _ignore_errors(conn):
-            return fun(*args, **kwargs)
-    return _ignore_errors(conn)
+    pass
 
 
 def revive_connection(connection, channel, on_revive=None):
-    if on_revive:
-        on_revive(channel)
+    pass
 
 
 def insured(pool, fun, args, kwargs, errback=None, on_revive=None, **opts):
@@ -340,18 +275,7 @@ def insured(pool, fun, args, kwargs, errback=None, on_revive=None, **opts):
     Ensures function performing broker commands completes
     despite intermittent connection failures.
     """
-    errback = errback or _ensure_errback
-
-    with pool.acquire(block=True) as conn:
-        conn.ensure_connection(errback=errback)
-        # we cache the channel for subsequent calls, this has to be
-        # reset on revival.
-        channel = conn.default_channel
-        revive = partial(revive_connection, conn, on_revive=on_revive)
-        insured = conn.autoretry(fun, channel, errback=errback,
-                                 on_revive=revive, **opts)
-        retval, _ = insured(*args, **dict(kwargs, connection=conn))
-        return retval
+    pass
 
 
 class QoS:
@@ -433,25 +357,11 @@ class QoS:
             The MainThread will be responsible for calling :meth:`update`
             when necessary.
         """
-        with self._mutex:
-            if self.value:
-                self.value -= n
-                if self.value < 1:
-                    self.value = 1
-        return self.value
+        pass
 
     def set(self, pcount):
         """Set channel prefetch_count setting."""
-        if pcount != self.prev:
-            new_value = pcount
-            if pcount > PREFETCH_COUNT_MAX:
-                logger.warning('QoS: Disabled: prefetch_count exceeds %r',
-                               PREFETCH_COUNT_MAX)
-                new_value = 0
-            logger.debug('basic.qos: prefetch_count->%s', new_value)
-            self.callback(prefetch_count=new_value)
-            self.prev = pcount
-        return pcount
+        pass
 
     def update(self):
         """Update prefetch count with current value."""

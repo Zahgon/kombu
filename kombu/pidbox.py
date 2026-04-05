@@ -68,8 +68,7 @@ class Node:
         queue = self.mailbox.get_queue(self.hostname)
 
         def verify_exclusive(name, messages, consumers):
-            if consumers:
-                warnings.warn(W_PIDBOX_IN_USE.format(node=self))
+            pass
         queue.on_declared = verify_exclusive
 
         return Consumer(
@@ -79,74 +78,33 @@ class Node:
         )
 
     def handler(self, fun):
-        self.handlers[fun.__name__] = fun
-        return fun
+        pass
 
     def on_decode_error(self, message, exc):
-        error('Cannot decode message: %r', exc, exc_info=1)
+        pass
 
     def listen(self, channel=None, callback=None):
-        consumer = self.Consumer(channel=channel,
-                                 callbacks=[callback or self.handle_message],
-                                 on_decode_error=self.on_decode_error)
-        consumer.consume()
-        return consumer
+        pass
 
     def dispatch(self, method, arguments=None,
                  reply_to=None, ticket=None, **kwargs):
-        arguments = arguments or {}
-        debug('pidbox received method %s [reply_to:%s ticket:%s]',
-              reprcall(method, (), kwargs=arguments), reply_to, ticket)
-        handle = reply_to and self.handle_call or self.handle_cast
-        try:
-            reply = handle(method, arguments)
-        except SystemExit:
-            raise
-        except Exception as exc:
-            error('pidbox command error: %r', exc, exc_info=1)
-            reply = {'error': repr(exc)}
-
-        if reply_to:
-            self.reply({self.hostname: reply},
-                       exchange=reply_to['exchange'],
-                       routing_key=reply_to['routing_key'],
-                       ticket=ticket)
-        return reply
+        pass
 
     def handle(self, method, arguments=None):
-        arguments = {} if not arguments else arguments
-        return self.handlers[method](self.state, **arguments)
+        pass
 
     def handle_call(self, method, arguments):
-        return self.handle(method, arguments)
+        pass
 
     def handle_cast(self, method, arguments):
-        return self.handle(method, arguments)
+        pass
 
     def handle_message(self, body, message=None):
-        destination = body.get('destination')
-        pattern = body.get('pattern')
-        matcher = body.get('matcher')
-        if message:
-            self.adjust_clock(message.headers.get('clock') or 0)
-        hostname = self.hostname
-        run_dispatch = False
-        if destination:
-            if hostname in destination:
-                run_dispatch = True
-        elif pattern and matcher:
-            if match(hostname, pattern, matcher):
-                run_dispatch = True
-        else:
-            run_dispatch = True
-        if run_dispatch:
-            return self.dispatch(**body)
+        pass
     dispatch_from_message = handle_message
 
     def reply(self, data, exchange, routing_key, ticket, **kwargs):
-        self.mailbox._publish_reply(data, exchange, routing_key, ticket,
-                                    channel=self.channel,
-                                    serializer=self.mailbox.serializer)
+        pass
 
 
 class Mailbox:
@@ -211,32 +169,22 @@ class Mailbox:
         return bound
 
     def Node(self, hostname=None, state=None, channel=None, handlers=None):
-        hostname = hostname or socket.gethostname()
-        return self.node_cls(hostname, state, channel, handlers, mailbox=self)
+        pass
 
     def call(self, destination, command, kwargs=None,
              timeout=None, callback=None, channel=None):
-        kwargs = {} if not kwargs else kwargs
-        return self._broadcast(command, kwargs, destination,
-                               reply=True, timeout=timeout,
-                               callback=callback,
-                               channel=channel)
+        pass
 
     def cast(self, destination, command, kwargs=None):
         kwargs = {} if not kwargs else kwargs
         return self._broadcast(command, kwargs, destination, reply=False)
 
     def abcast(self, command, kwargs=None):
-        kwargs = {} if not kwargs else kwargs
-        return self._broadcast(command, kwargs, reply=False)
+        pass
 
     def multi_call(self, command, kwargs=None, timeout=1,
                    limit=None, callback=None, channel=None):
-        kwargs = {} if not kwargs else kwargs
-        return self._broadcast(command, kwargs, reply=True,
-                               timeout=timeout, limit=limit,
-                               callback=callback,
-                               channel=channel)
+        pass
 
     def get_reply_queue(self):
         oid = self.oid
@@ -278,22 +226,7 @@ class Mailbox:
 
     def _publish_reply(self, reply, exchange, routing_key, ticket,
                        channel=None, producer=None, **opts):
-        chan = channel or self.connection.default_channel
-        exchange = Exchange(exchange, exchange_type='direct',
-                            delivery_mode='transient',
-                            durable=False)
-        with self.producer_or_acquire(producer, chan) as producer:
-            try:
-                producer.publish(
-                    reply, exchange=exchange, routing_key=routing_key,
-                    declare=[exchange], headers={
-                        'ticket': ticket, 'clock': self.clock.forward(),
-                    }, retry=True,
-                    **opts
-                )
-            except InconsistencyError:
-                # queue probably deleted and no one is expecting a reply.
-                pass
+        pass
 
     def _publish(self, type, arguments, destination=None,
                  reply_ticket=None, channel=None, timeout=None,
@@ -377,18 +310,7 @@ class Mailbox:
 
         def on_message(body, message):
             # ticket header added in kombu 2.5
-            header = message.headers.get
-            adjust_clock(header('clock') or 0)
-            expires = header('expires')
-            if expires and time() > expires:
-                return
-            this_id = header('ticket', ticket)
-            if this_id == ticket:
-                if callback:
-                    callback(body)
-                responses.append(body)
-            else:
-                unclaimed[this_id].append(body)
+            pass
 
         consumer.register_callback(on_message)
         try:
@@ -403,21 +325,15 @@ class Mailbox:
             chan.after_reply_message_received(queue.name)
 
     def _get_exchange(self, namespace, type):
-        return Exchange(self.exchange_fmt % namespace,
-                        type=type,
-                        durable=False,
-                        delivery_mode='transient')
+        pass
 
     def _get_reply_exchange(self, namespace):
-        return Exchange(self.reply_exchange_fmt % namespace,
-                        type='direct',
-                        durable=False,
-                        delivery_mode='transient')
+        pass
 
     @property
     def oid(self):
-        return oid_from(self)
+        pass
 
     @cached_property
     def producer_pool(self):
-        return maybe_evaluate(self._producer_pool)
+        pass

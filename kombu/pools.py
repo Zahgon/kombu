@@ -20,7 +20,7 @@ disable_limit_protection = os.environ.get('KOMBU_DISABLE_LIMIT_PROTECTION')
 
 
 def _after_fork_cleanup_group(group):
-    group.clear()
+    pass
 
 
 class ProducerPool(Resource):
@@ -38,12 +38,7 @@ class ProducerPool(Resource):
         return self.connections.acquire(block=True)
 
     def create_producer(self):
-        conn = self._acquire_connection()
-        try:
-            return self.Producer(conn)
-        except BaseException:
-            conn.release()
-            raise
+        pass
 
     def new(self):
         return lazy(self.create_producer)
@@ -122,31 +117,19 @@ producers = register_group(Producers(limit=use_global_limit))
 
 
 def _all_pools():
-    return chain(*((g.values() if g else iter([])) for g in _groups))
+    pass
 
 
 def get_limit():
     """Get current connection pool limit."""
-    return _limit[0]
+    pass
 
 
 def set_limit(limit, force=False, reset_after=False, ignore_errors=False):
     """Set new connection pool limit."""
-    limit = limit or 0
-    glimit = _limit[0] or 0
-    if limit != glimit:
-        _limit[0] = limit
-        for pool in _all_pools():
-            pool.resize(limit)
-    return limit
+    pass
 
 
 def reset(*args, **kwargs):
     """Reset all pools by closing open resources."""
-    for pool in _all_pools():
-        try:
-            pool.force_close_all()
-        except Exception:
-            pass
-    for group in _groups:
-        group.clear()
+    pass

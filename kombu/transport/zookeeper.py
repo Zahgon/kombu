@@ -220,4 +220,4 @@ class Transport(virtual.Transport):
         super().__init__(*args, **kwargs)
 
     def driver_version(self):
-        return kazoo.__version__
+        pass

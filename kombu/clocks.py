@@ -113,9 +113,7 @@ class LamportClock:
         self.mutex = Lock()
 
     def adjust(self, other: int) -> int:
-        with self.mutex:
-            value = self.value = max(self.value, other) + 1
-            return value
+        pass
 
     def forward(self) -> int:
         with self.mutex:
@@ -138,16 +136,7 @@ class LamportClock:
 
         Will return the latest event.
         """
-        if h[0][0] == h[1][0]:
-            same = []
-            for PN in zip(h, islice(h, 1, None)):
-                if PN[0][0] != PN[1][0]:
-                    break  # Prev and Next's clocks differ
-                same.append(PN[0])
-            # return first item sorted by process id
-            return sorted(same, key=lambda event: event[1])[0]
-        # clock values unique, return first item
-        return h[0]
+        pass
 
     def __str__(self) -> str:
         return str(self.value)

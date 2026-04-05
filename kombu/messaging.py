@@ -219,16 +219,10 @@ class Producer:
         )
 
     def _get_channel(self):
-        channel = self._channel
-        if isinstance(channel, ChannelPromise):
-            channel = self._channel = channel()
-            self.exchange.revive(channel)
-            if self.on_return:
-                channel.events['basic_return'].add(self.on_return)
-        return channel
+        pass
 
     def _set_channel(self, channel):
-        self._channel = channel
+        pass
 
     channel = property(_get_channel, _set_channel)
 
@@ -298,10 +292,7 @@ class Producer:
 
     @property
     def connection(self):
-        try:
-            return self.__connection__ or self.channel.connection.client
-        except AttributeError:
-            pass
+        pass
 
 
 class Consumer:
@@ -486,11 +477,7 @@ class Consumer:
             This will not start consuming from the queue,
             for that you will have to call :meth:`consume` after.
         """
-        queue = queue(self.channel)
-        if self.auto_declare:
-            queue.declare()
-        self._queues[queue.name] = queue
-        return queue
+        pass
 
     def consume(self, no_ack=None):
         """Start consuming messages.
@@ -530,22 +517,11 @@ class Consumer:
 
     def cancel_by_queue(self, queue):
         """Cancel consumer by queue name."""
-        qname = queue.name if isinstance(queue, Queue) else queue
-        try:
-            tag = self._active_tags.pop(qname)
-        except KeyError:
-            pass
-        else:
-            self.channel.basic_cancel(tag)
-        finally:
-            self._queues.pop(qname, None)
+        pass
 
     def consuming_from(self, queue):
         """Return :const:`True` if currently consuming from queue'."""
-        name = queue
-        if isinstance(queue, Queue):
-            name = queue.name
-        return name in self._active_tags
+        pass
 
     def purge(self):
         """Purge messages from all queues.
@@ -567,7 +543,7 @@ class Consumer:
         will finish sending the current content (if any), and then wait
         until flow is reactivated.
         """
-        self.channel.flow(active)
+        pass
 
     def qos(self, prefetch_size=0, prefetch_count=0, apply_global=False):
         """Specify quality of service.
@@ -611,7 +587,7 @@ class Consumer:
                 server will attempt to requeue the message, potentially then
                 delivering it to an alternative subscriber.
         """
-        return self.channel.basic_recover(requeue=requeue)
+        pass
 
     def receive(self, body, message):
         """Method called when a message is received.
@@ -649,30 +625,11 @@ class Consumer:
         return tag
 
     def _receive_callback(self, message):
-        accept = self.accept
-        on_m, channel, decoded = self.on_message, self.channel, None
-        try:
-            m2p = getattr(channel, 'message_to_python', None)
-            if m2p:
-                message = m2p(message)
-            if accept is not None:
-                message.accept = accept
-            if message.errors:
-                return message._reraise_error(self.on_decode_error)
-            decoded = None if on_m else message.decode()
-        except Exception as exc:
-            if not self.on_decode_error:
-                raise
-            self.on_decode_error(message, exc)
-        else:
-            return on_m(message) if on_m else self.receive(decoded, message)
+        pass
 
     def __repr__(self):
         return f'<{type(self).__name__}: {self.queues}>'
 
     @property
     def connection(self):
-        try:
-            return self.channel.connection.client
-        except AttributeError:
-            pass
+        pass

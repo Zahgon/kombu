@@ -300,7 +300,7 @@ class Connection:
         self.credential_provider = credential_provider
 
     def register_with_event_loop(self, loop):
-        self.transport.register_with_event_loop(self.connection, loop)
+        pass
 
     def _debug(self, msg, *args, **kwargs):
         if self._logger:  # pragma: no cover
@@ -460,19 +460,7 @@ class Connection:
             return self._connection
 
         def on_error(exc, intervals, retries, interval=0):
-            round = self.completes_cycle(retries)
-            if round:
-                interval = next(intervals)
-            try:
-                if errback:
-                    errback(exc, interval)
-            finally:
-                # Select next host after invoking errback so that the
-                # callback can inspect the failing host, but always
-                # switch even if errback raises.
-                self.maybe_switch_next()
-
-            return interval if round else 0
+            pass
 
         ctx = self._reraise_as_library_errors
         if not reraise_as_library_errors:
@@ -501,7 +489,7 @@ class Connection:
 
     @contextmanager
     def _dummy_context(self):
-        yield
+        pass
 
     def completes_cycle(self, retries):
         """Return true if the cycle is complete after number of `retries`."""
@@ -566,55 +554,7 @@ class Connection:
             retry_errors = tuple()
 
         def _ensured(*args, **kwargs):
-            got_connection = 0
-            conn_errors = self.recoverable_connection_errors
-            chan_errors = self.recoverable_channel_errors
-            has_modern_errors = hasattr(
-                self.transport, 'recoverable_connection_errors',
-            )
-            with self._reraise_as_library_errors():
-                for retries in count(0):  # for infinity
-                    try:
-                        return fun(*args, **kwargs)
-                    except retry_errors as exc:
-                        if max_retries is not None and retries >= max_retries:
-                            raise
-                        self._debug('ensure retry policy error: %r',
-                                    exc, exc_info=1)
-                    except conn_errors as exc:
-                        self.maybe_switch_next()  # select next host
-                        if got_connection and not has_modern_errors:
-                            # transport can not distinguish between
-                            # recoverable/irrecoverable errors, so we propagate
-                            # the error if it persists after a new connection
-                            # was successfully established.
-                            raise
-                        if max_retries is not None and retries >= max_retries:
-                            raise
-                        self._debug('ensure connection error: %r',
-                                    exc, exc_info=1)
-                        self.collect()
-                        errback and errback(exc, 0)
-                        remaining_retries = None
-                        if max_retries is not None:
-                            remaining_retries = max(max_retries - retries, 1)
-                        self._ensure_connection(
-                            errback,
-                            remaining_retries,
-                            interval_start, interval_step, interval_max,
-                            reraise_as_library_errors=False,
-                        )
-                        channel = self.default_channel
-                        obj.revive(channel)
-                        if on_revive:
-                            on_revive(channel)
-                        got_connection += 1
-                    except chan_errors as exc:
-                        if max_retries is not None and retries > max_retries:
-                            raise
-                        self._debug('ensure channel error: %r',
-                                    exc, exc_info=1)
-                        errback and errback(exc, 0)
+            pass
         _ensured.__name__ = f'{fun.__name__}(ensured)'
         _ensured.__doc__ = fun.__doc__
         _ensured.__module__ = fun.__module__
@@ -643,43 +583,21 @@ class Connection:
             ... finally:
             ...    channel.close()
         """
-        channels = [channel]
-
-        class Revival:
-            __name__ = getattr(fun, '__name__', None)
-            __module__ = getattr(fun, '__module__', None)
-            __doc__ = getattr(fun, '__doc__', None)
-
-            def __init__(self, connection):
-                self.connection = connection
-
-            def revive(self, channel):
-                channels[0] = channel
-
-            def __call__(self, *args, **kwargs):
-                if channels[0] is None:
-                    self.revive(self.connection.default_channel)
-                return fun(*args, channel=channels[0], **kwargs), channels[0]
-
-        revive = Revival(self)
-        return self.ensure(revive, revive, **ensure_options)
+        pass
 
     def create_transport(self):
-        return self.get_transport_cls()(client=self)
+        pass
 
     def get_transport_cls(self):
         """Get the currently used transport class."""
-        transport_cls = self.transport_cls
-        if not transport_cls or isinstance(transport_cls, str):
-            transport_cls = get_transport_cls(transport_cls)
-        return transport_cls
+        pass
 
     def clone(self, **kwargs):
         """Create a copy of the connection with same settings."""
         return self.__class__(**dict(self._info(resolve=False), **kwargs))
 
     def get_heartbeat_interval(self):
-        return self.transport.get_heartbeat_interval(self.connection)
+        pass
 
     def _info(self, resolve=True):
         transport_cls = self.transport_cls
@@ -819,7 +737,7 @@ class Connection:
             >>> c1.release()
             >>> c3 = pool.acquire()
         """
-        return ChannelPool(self, limit, **kwargs)
+        pass
 
     def Producer(self, channel=None, *args, **kwargs):
         """Create new :class:`kombu.Producer` instance."""
@@ -884,13 +802,10 @@ class Connection:
                             exchange_opts, **kwargs)
 
     def _establish_connection(self):
-        self._debug('establishing connection...')
-        conn = self.transport.establish_connection()
-        self._debug('connection established: %r', self)
-        return conn
+        pass
 
     def supports_exchange_type(self, exchange_type):
-        return exchange_type in self.transport.implements.exchange_type
+        pass
 
     def __repr__(self):
         return f'<Connection: {self.as_uri()} at {id(self):#x}>'
@@ -914,35 +829,15 @@ class Connection:
 
     @property
     def qos_semantics_matches_spec(self):
-        return self.transport.qos_semantics_matches_spec(self.connection)
+        pass
 
     def _extract_failover_opts(self):
-        conn_opts = {'timeout': self.connect_timeout}
-        transport_opts = self.transport_options
-        if transport_opts:
-            if 'max_retries' in transport_opts:
-                conn_opts['max_retries'] = transport_opts['max_retries']
-            if 'interval_start' in transport_opts:
-                conn_opts['interval_start'] = transport_opts['interval_start']
-            if 'interval_step' in transport_opts:
-                conn_opts['interval_step'] = transport_opts['interval_step']
-            if 'interval_max' in transport_opts:
-                conn_opts['interval_max'] = transport_opts['interval_max']
-            if 'connect_retries_timeout' in transport_opts:
-                conn_opts['timeout'] = \
-                    transport_opts['connect_retries_timeout']
-            if 'errback' in transport_opts:
-                conn_opts['errback'] = transport_opts['errback']
-            if 'callback' in transport_opts:
-                conn_opts['callback'] = transport_opts['callback']
-        return conn_opts
+        pass
 
     @property
     def connected(self):
         """Return true if the connection has been established."""
-        return (not self._closed and
-                self._connection is not None and
-                self.transport.verify_connection(self._connection))
+        pass
 
     @property
     def connection(self):
@@ -953,19 +848,10 @@ class Connection:
             This instance is transport specific, so do not
             depend on the interface of this object.
         """
-        if not self._closed:
-            if not self.connected:
-                return self._ensure_connection(
-                    max_retries=1, reraise_as_library_errors=False
-                )
-            return self._connection
+        pass
 
     def _connection_factory(self):
-        self.declared_entities.clear()
-        self._default_channel = None
-        self._connection = self._establish_connection()
-        self._closed = False
-        return self._connection
+        pass
 
     @property
     def default_channel(self) -> Channel:
@@ -980,24 +866,16 @@ class Connection:
             a connection is passed instead of a channel, to functions that
             require a channel.
         """
-        # make sure we're still connected, and if not refresh.
-        conn_opts = self._extract_failover_opts()
-        self._ensure_connection(**conn_opts)
-
-        if self._default_channel is None:
-            self._default_channel = self.channel()
-        return self._default_channel
+        pass
 
     @property
     def host(self):
         """The host as a host name/port pair separated by colon."""
-        return ':'.join([self.hostname, str(self.port)])
+        pass
 
     @property
     def transport(self):
-        if self._transport is None:
-            self._transport = self.create_transport()
-        return self._transport
+        pass
 
     @cached_property
     def manager(self):
@@ -1008,10 +886,10 @@ class Connection:
 
         Not available for all transports.
         """
-        return self.transport.manager
+        pass
 
     def get_manager(self, *args, **kwargs):
-        return self.transport.get_manager(*args, **kwargs)
+        pass
 
     @cached_property
     def recoverable_connection_errors(self):
@@ -1020,14 +898,7 @@ class Connection:
         List of connection related exceptions that can be recovered from,
         but where the connection must be closed and re-established first.
         """
-        try:
-            return self.get_transport_cls().recoverable_connection_errors
-        except AttributeError:
-            # There were no such classification before,
-            # and all errors were assumed to be recoverable,
-            # so this is a fallback for transports that do
-            # not support the new recoverable/irrecoverable classes.
-            return self.connection_errors + self.channel_errors
+        pass
 
     @cached_property
     def recoverable_channel_errors(self):
@@ -1036,28 +907,25 @@ class Connection:
         List of channel related exceptions that can be automatically
         recovered from without re-establishing the connection.
         """
-        try:
-            return self.get_transport_cls().recoverable_channel_errors
-        except AttributeError:
-            return ()
+        pass
 
     @cached_property
     def connection_errors(self):
         """List of exceptions that may be raised by the connection."""
-        return self.get_transport_cls().connection_errors
+        pass
 
     @cached_property
     def channel_errors(self):
         """List of exceptions that may be raised by the channel."""
-        return self.get_transport_cls().channel_errors
+        pass
 
     @property
     def supports_heartbeats(self):
-        return self.transport.implements.heartbeats
+        pass
 
     @property
     def is_evented(self):
-        return self.transport.implements.asynchronous
+        pass
 
 
 BrokerConnection = Connection
@@ -1111,8 +979,7 @@ class ConnectionPool(Resource):
 
     @contextmanager
     def acquire_channel(self, block=False):
-        with self.acquire(block=block) as connection:
-            yield connection, connection.default_channel
+        pass
 
     def setup(self):
         if self.limit:

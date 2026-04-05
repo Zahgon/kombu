@@ -106,7 +106,7 @@ class Channel(virtual.Channel):
 
     @cached_property
     def shared_queues(self):
-        return self.connection.shared_queues
+        pass
 
 
 class Transport(virtual.Transport):
@@ -144,11 +144,11 @@ class Transport(virtual.Transport):
                     sys.exc_info()[2])
 
     def driver_version(self):
-        return pyro.__version__
+        pass
 
     @cached_property
     def shared_queues(self):
-        return self._open()
+        pass
 
 
 if pyro is not None:

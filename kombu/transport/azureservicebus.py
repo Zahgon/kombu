@@ -137,28 +137,7 @@ class Channel(virtual.Channel):
         self.qos.restore_at_shutdown = False
 
     def _try_parse_connection_string(self) -> None:
-        self._namespace, self._credential = Transport.parse_uri(
-            self.conninfo.hostname)
-
-        if (
-            DefaultAzureCredential is not None
-            and isinstance(self._credential, DefaultAzureCredential)
-        ) or (
-            ManagedIdentityCredential is not None
-            and isinstance(self._credential, ManagedIdentityCredential)
-        ):
-            return None
-
-        if ":" in self._credential:
-            self._policy, self._sas_key = self._credential.split(':', 1)
-
-        conn_dict = {
-            'Endpoint': 'sb://' + self._namespace,
-            'SharedAccessKeyName': self._policy,
-            'SharedAccessKey': self._sas_key,
-        }
-        self._connection_string = ';'.join(
-            [key + '=' + value for key, value in conn_dict.items()])
+        pass
 
     def basic_consume(self, queue, no_ack, *args, **kwargs):
         if no_ack:
@@ -355,77 +334,47 @@ class Channel(virtual.Channel):
 
     @cached_property
     def queue_service(self) -> ServiceBusClient:
-        if self._connection_string:
-            return ServiceBusClient.from_connection_string(
-                self._connection_string,
-                retry_total=self.retry_total,
-                retry_backoff_factor=self.retry_backoff_factor,
-                retry_backoff_max=self.retry_backoff_max
-            )
-
-        return ServiceBusClient(
-            self._namespace,
-            self._credential,
-            retry_total=self.retry_total,
-            retry_backoff_factor=self.retry_backoff_factor,
-            retry_backoff_max=self.retry_backoff_max
-        )
+        pass
 
     @cached_property
     def queue_mgmt_service(self) -> ServiceBusAdministrationClient:
-        if self._connection_string:
-            return ServiceBusAdministrationClient.from_connection_string(
-                self._connection_string
-            )
-
-        return ServiceBusAdministrationClient(
-            self._namespace, self._credential
-        )
+        pass
 
     @property
     def conninfo(self):
-        return self.connection.client
+        pass
 
     @property
     def transport_options(self):
-        return self.connection.client.transport_options
+        pass
 
     @cached_property
     def queue_name_prefix(self) -> str:
-        return self.transport_options.get('queue_name_prefix', '')
+        pass
 
     @cached_property
     def wait_time_seconds(self) -> int:
-        return self.transport_options.get('wait_time_seconds',
-                                          self.default_wait_time_seconds)
+        pass
 
     @cached_property
     def peek_lock_seconds(self) -> int:
-        return min(self.transport_options.get('peek_lock_seconds',
-                                              self.default_peek_lock_seconds),
-                   300)  # Limit upper bounds to 300
+        pass
 
     @cached_property
     def uamqp_keep_alive_interval(self) -> int:
-        return self.transport_options.get(
-            'uamqp_keep_alive_interval',
-            self.default_uamqp_keep_alive_interval
-        )
+        pass
 
     @cached_property
     def retry_total(self) -> int:
-        return self.transport_options.get(
-            'retry_total', self.default_retry_total)
+        pass
 
     @cached_property
     def retry_backoff_factor(self) -> float:
-        return self.transport_options.get(
-            'retry_backoff_factor', self.default_retry_backoff_factor)
+        pass
 
     @cached_property
     def retry_backoff_max(self) -> int:
-        return self.transport_options.get(
-            'retry_backoff_max', self.default_retry_backoff_max)
+        pass
 
 
 class Transport(virtual.Transport):

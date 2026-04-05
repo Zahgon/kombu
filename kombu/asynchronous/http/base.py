@@ -23,7 +23,7 @@ PYPY = hasattr(sys, 'pypy_version_info')
 
 @memoize(maxsize=1000)
 def normalize_header(key):
-    return '-'.join(p.capitalize() for p in key.split('-'))
+    pass
 
 
 class Headers(dict):
@@ -190,8 +190,7 @@ class Response:
         ------
             :class:`~kombu.exceptions.HttpError`
         """
-        if self.error:
-            raise self.error
+        pass
 
     @property
     def body(self):
@@ -202,37 +201,21 @@ class Response:
             Accessing this property will evaluate the buffer
             and subsequent accesses will be cached.
         """
-        if self._body is None:
-            if self.buffer is not None:
-                self._body = self.buffer.getvalue()
-        return self._body
+        pass
 
     # these are for compatibility with Requests
     @property
     def status_code(self):
-        return self.code
+        pass
 
     @property
     def content(self):
-        return self.body
+        pass
 
 
 @coro
 def header_parser(keyt=normalize_header):
-    while 1:
-        (line, headers) = yield
-        if line.startswith('HTTP/'):
-            continue
-        elif not line:
-            headers.complete = True
-            continue
-        elif line[0].isspace():
-            pkey = headers._prev_key
-            headers[pkey] = ' '.join([headers.get(pkey) or '', line.lstrip()])
-        else:
-            key, value = line.split(':', 1)
-            key = headers._prev_key = keyt(key)
-            headers[key] = value.strip()
+    pass
 
 
 class BaseClient:
@@ -245,10 +228,7 @@ class BaseClient:
         self._header_parser = header_parser()
 
     def perform(self, request, **kwargs):
-        for req in maybe_list(request) or []:
-            if not isinstance(req, self.Request):
-                req = self.Request(req, **kwargs)
-            self.add_request(req)
+        pass
 
     def add_request(self, request):
         raise NotImplementedError('must implement add_request')
@@ -257,10 +237,7 @@ class BaseClient:
         pass
 
     def on_header(self, headers, line):
-        try:
-            self._header_parser.send((bytes_to_str(line), headers))
-        except StopIteration:
-            self._header_parser = header_parser()
+        pass
 
     def __enter__(self):
         return self

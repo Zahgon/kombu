@@ -101,7 +101,7 @@ class SimpleBase:
         self.consumer.cancel()
 
     def _receive(self, message_data, message):
-        self.buffer.append(message)
+        pass
 
     def _consume(self):
         if not self._consuming:

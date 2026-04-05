@@ -144,8 +144,7 @@ class AsyncSQSConnection(AsyncAWSQueryConnection):
                                callback=callback)
 
     def get_queue_url(self, queue):
-        res = self.sqs_connection.get_queue_url(QueueName=queue)
-        return res['QueueUrl']
+        pass
 
     def get_queue_attributes(self, queue, attribute='All', callback=None):
         return self.get_object(
@@ -154,15 +153,7 @@ class AsyncSQSConnection(AsyncAWSQueryConnection):
         )
 
     def set_queue_attribute(self, queue, attribute, value, callback=None):
-        return self.get_status(
-            'SetQueueAttribute',
-            {},
-            queue.id, callback=callback,
-            protocol_params={
-                'json': {'Attributes': {attribute: value}},
-                'query': {'Attribute.Name': attribute, 'Attribute.Value': value},
-            },
-        )
+        pass
 
     def receive_message(
         self, queue, queue_url, number_messages=1, visibility_timeout=None,
@@ -197,22 +188,7 @@ class AsyncSQSConnection(AsyncAWSQueryConnection):
         )
 
     def delete_message_batch(self, queue, messages, callback=None):
-        p_params = {
-            'json': {
-                'Entries': [{'Id': m.id, 'ReceiptHandle': m.receipt_handle} for m in messages],
-            },
-            'query': _query_object_encode({
-                'DeleteMessageBatchRequestEntry': [
-                    {'Id': m.id, 'ReceiptHandle': m.receipt_handle}
-                    for m in messages
-                ],
-            }),
-        }
-
-        return self.get_object(
-            'DeleteMessageBatch', {}, queue.id,
-            verb='POST', callback=callback, protocol_params=p_params,
-        )
+        pass
 
     def delete_message_from_handle(self, queue, receipt_handle,
                                    callback=None):
@@ -232,18 +208,7 @@ class AsyncSQSConnection(AsyncAWSQueryConnection):
         )
 
     def send_message_batch(self, queue, messages, callback=None):
-        params = {}
-        for i, msg in enumerate(messages):
-            prefix = f'SendMessageBatchRequestEntry.{i + 1}'
-            params.update({
-                f'{prefix}.Id': msg[0],
-                f'{prefix}.MessageBody': msg[1],
-                f'{prefix}.DelaySeconds': msg[2],
-            })
-        return self.get_object(
-            'SendMessageBatch', params, queue.id,
-            verb='POST', callback=callback,
-        )
+        pass
 
     def change_message_visibility(self, queue, receipt_handle,
                                   visibility_timeout, callback=None):
@@ -255,21 +220,7 @@ class AsyncSQSConnection(AsyncAWSQueryConnection):
         )
 
     def change_message_visibility_batch(self, queue, messages, callback=None):
-        entries = [
-            {'Id': t[0].id, 'ReceiptHandle': t[0].receipt_handle, 'VisibilityTimeout': t[1]}
-            for t in messages
-        ]
-
-        p_params = {
-            'json': {'Entries': entries},
-            'query': _query_object_encode({'ChangeMessageVisibilityBatchRequestEntry': entries}),
-        }
-
-        return self.get_object(
-            'ChangeMessageVisibilityBatch', {}, queue.id,
-            verb='POST', callback=callback,
-            protocol_params=p_params,
-        )
+        pass
 
     def get_all_queues(self, prefix='', callback=None):
         params = {}
@@ -289,31 +240,17 @@ class AsyncSQSConnection(AsyncAWSQueryConnection):
     lookup = get_queue
 
     def _on_queue_ready(self, name, queues):
-        return next(
-            (q for q in queues if q.url.endswith(name)), None,
-        )
+        pass
 
     def get_dead_letter_source_queues(self, queue, callback=None):
-        return self.get_list(
-            'ListDeadLetterSourceQueues', {'QueueUrl': queue.url},
-            [('QueueUrl', AsyncQueue)],
-            callback=callback,
-        )
+        pass
 
     def add_permission(self, queue, label, aws_account_id, action_name,
                        callback=None):
-        return self.get_status(
-            'AddPermission',
-            {'Label': label,
-             'AWSAccountId': aws_account_id,
-             'ActionName': action_name},
-            queue.id, callback=callback,
-        )
+        pass
 
     def remove_permission(self, queue, label, callback=None):
-        return self.get_status(
-            'RemovePermission', {'Label': label}, queue.id, callback=callback,
-        )
+        pass
 
 
 def _query_object_encode(items):

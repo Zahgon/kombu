@@ -108,7 +108,7 @@ class Transport(base.Transport):
         self.__reader = None
 
     def driver_version(self):
-        return amqp.__version__
+        pass
 
     def create_channel(self, connection):
         return connection.channel()
@@ -158,40 +158,17 @@ class Transport(base.Transport):
         self.client = None
 
     def verify_connection(self, connection):
-        return connection.connected
+        pass
 
     def register_with_event_loop(self, connection, loop):
-        loop.add_reader(
-            connection.fileno(), self.on_readable, connection, loop,
-        )
+        pass
 
     def get_manager(self, *args, **kwargs):
-        return get_manager(self.client, *args, **kwargs)
+        pass
 
     def qos_semantics_matches_spec(self, connection):
-        try:
-            props = connection.server_properties
-        except AttributeError:
-            warnings.warn(UserWarning(W_VERSION))
-        else:
-            if props.get('product') == 'RabbitMQ':
-                version_str = props.get('version')
-                if not version_str:
-                    return True
-                version = version_string_as_tuple(version_str)
-                # RabbitMQ < 3.3: per-channel QoS (return True)
-                # RabbitMQ 3.3–3.x: global QoS semantics (return False)
-                # RabbitMQ 4.0+: global QoS removed on classic queues (return True)
-                return version < (3, 3) or version >= (4, 0)
-        return True
+        pass
 
     @property
     def default_connection_params(self):
-        return {
-            'userid': 'guest',
-            'password': 'guest',
-            'port': (self.default_ssl_port if self.client.ssl
-                     else self.default_port),
-            'hostname': 'localhost',
-            'login_method': 'PLAIN',
-        }
+        pass

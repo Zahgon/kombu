@@ -12,8 +12,7 @@ from kombu.asynchronous.http import Headers, Request, get_client
 
 
 def message_from_headers(hdr):
-    bs = "\r\n".join("{}: {}".format(*h) for h in hdr)
-    return message_from_bytes(bs.encode())
+    pass
 
 
 __all__ = (
@@ -33,26 +32,22 @@ class AsyncHTTPResponse:
         return self.response.body
 
     def getheader(self, name, default=None):
-        return self.response.headers.get(name, default)
+        pass
 
     def getheaders(self):
-        return list(self.response.headers.items())
+        pass
 
     @property
     def msg(self):
-        if self._msg is None:
-            self._msg = MIMEMessage(message_from_headers(self.getheaders()))
-        return self._msg
+        pass
 
     @property
     def status(self):
-        return self.response.code
+        pass
 
     @property
     def reason(self):
-        if self.response.error:
-            return self.response.error.message
-        return ''
+        pass
 
     def __repr__(self):
         return repr(self.response)
@@ -110,11 +105,10 @@ class AsyncHTTPSConnection:
         pass
 
     def putrequest(self, method, path):
-        self.method = method
-        self.path = path
+        pass
 
     def putheader(self, header, value):
-        self.headers.append((header, value))
+        pass
 
     def endheaders(self):
         pass
@@ -234,45 +228,13 @@ class AsyncAWSQueryConnection(AsyncConnection):
         )
 
     def _on_list_ready(self, parent, markers, operation, response):
-        service_model = self.sqs_connection.meta.service_model
-        if response.status == self.STATUS_CODE_OK:
-            _, parsed = get_response(
-                service_model.operation_model(operation), response.response
-            )
-            return parsed
-        elif (
-            response.status in self.STATUS_CODES_TIMEOUT or
-            response.status in self.STATUS_CODES_SERVER_ERRORS
-        ):
-            # When the server returns a timeout or 50X server error,
-            # the response is interpreted as an empty list.
-            # This prevents hanging the Celery worker.
-            return []
-        else:
-            raise self._for_status(response, response.read())
+        pass
 
     def _on_obj_ready(self, parent, operation, response):
-        service_model = self.sqs_connection.meta.service_model
-        if response.status == self.STATUS_CODE_OK:
-            _, parsed = get_response(
-                service_model.operation_model(operation), response.response
-            )
-            return parsed
-        else:
-            raise self._for_status(response, response.read())
+        pass
 
     def _on_status_ready(self, parent, operation, response):
-        service_model = self.sqs_connection.meta.service_model
-        if response.status == self.STATUS_CODE_OK:
-            httpres, _ = get_response(
-                service_model.operation_model(operation), response.response
-            )
-            return httpres.code
-        else:
-            raise self._for_status(response, response.read())
+        pass
 
     def _for_status(self, response, body):
-        context = 'Empty body' if not body else 'HTTP Error'
-        return Exception("Request {}  HTTP {}  {} ({})".format(
-            context, response.status, response.reason, body
-        ))
+        pass

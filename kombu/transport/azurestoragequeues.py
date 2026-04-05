@@ -175,24 +175,19 @@ class Channel(virtual.Channel):
 
     @property
     def queue_service(self) -> QueueServiceClient:
-        if self._queue_service is None:
-            self._queue_service = QueueServiceClient(
-                account_url=self._url, credential=self._credential
-            )
-
-        return self._queue_service
+        pass
 
     @property
     def conninfo(self):
-        return self.connection.client
+        pass
 
     @property
     def transport_options(self):
-        return self.connection.client.transport_options
+        pass
 
     @cached_property
     def queue_name_prefix(self) -> str:
-        return self.transport_options.get('queue_name_prefix', '')
+        pass
 
 
 class Transport(virtual.Transport):

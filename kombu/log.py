@@ -71,8 +71,7 @@ class LogMixin:
         return self.log(logging.ERROR, *args, **kwargs)
 
     def critical(self, *args, **kwargs):
-        kwargs.setdefault('exc_info', True)
-        return self.log(logging.CRITICAL, *args, **kwargs)
+        pass
 
     def annotate(self, text):
         return f'{self.logger_name} - {text}'
@@ -96,7 +95,7 @@ class LogMixin:
         return get_logger(self.logger_name)
 
     def is_enabled_for(self, level):
-        return self.logger.isEnabledFor(self.get_loglevel(level))
+        pass
 
     def get_loglevel(self, level):
         if not isinstance(level, numbers.Integral):
@@ -105,11 +104,11 @@ class LogMixin:
 
     @cached_property
     def logger(self):
-        return self.get_logger()
+        pass
 
     @property
     def logger_name(self):
-        return self.__class__.__name__
+        pass
 
 
 class Log(LogMixin):
@@ -125,7 +124,7 @@ class Log(LogMixin):
 
     @property
     def logger_name(self):
-        return self._logger_name
+        pass
 
 
 def setup_logging(loglevel=None, logfile=None):

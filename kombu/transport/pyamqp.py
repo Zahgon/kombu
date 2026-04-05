@@ -122,7 +122,7 @@ class Channel(amqp.Channel, base.StdChannel):
 
     def message_to_python(self, raw_message):
         """Convert encoded message body back to a Python value."""
-        return self.Message(raw_message, channel=self)
+        pass
 
 
 class Connection(amqp.Connection):
@@ -162,7 +162,7 @@ class Transport(base.Transport):
         self.default_ssl_port = default_ssl_port or self.default_ssl_port
 
     def driver_version(self):
-        return amqp.__version__
+        pass
 
     def create_channel(self, connection):
         return connection.channel()
@@ -209,7 +209,7 @@ class Transport(base.Transport):
         return conn
 
     def verify_connection(self, connection):
-        return connection.connected
+        pass
 
     def close_connection(self, connection):
         """Close the AMQP broker connection."""
@@ -217,41 +217,23 @@ class Transport(base.Transport):
         connection.close()
 
     def get_heartbeat_interval(self, connection):
-        return connection.heartbeat
+        pass
 
     def register_with_event_loop(self, connection, loop):
-        connection.transport.raise_on_initial_eintr = True
-        loop.add_reader(connection.sock, self.on_readable, connection, loop)
+        pass
 
     def heartbeat_check(self, connection, rate=2):
         return connection.heartbeat_tick(rate=rate)
 
     def qos_semantics_matches_spec(self, connection):
-        props = connection.server_properties
-        if props.get('product') == 'RabbitMQ':
-            version_str = props.get('version')
-            if not version_str:
-                return True
-            version = version_string_as_tuple(version_str)
-            # RabbitMQ < 3.3: per-channel QoS (return True)
-            # RabbitMQ 3.3–3.x: global QoS semantics (return False)
-            # RabbitMQ 4.0+: global QoS removed on classic queues (return True)
-            return version < (3, 3) or version >= (4, 0)
-        return True
+        pass
 
     @property
     def default_connection_params(self):
-        return {
-            'userid': 'guest',
-            'password': 'guest',
-            'port': (self.default_ssl_port if self.client.ssl
-                     else self.default_port),
-            'hostname': 'localhost',
-            'login_method': 'PLAIN',
-        }
+        pass
 
     def get_manager(self, *args, **kwargs):
-        return get_manager(self.client, *args, **kwargs)
+        pass
 
 
 class SSLTransport(Transport):

@@ -36,7 +36,7 @@ def register(encoder, decoder, content_type, aliases=None):
 
 def encoders():
     """Return a list of available compression methods."""
-    return list(_encoders)
+    pass
 
 
 def get_encoder(t):
@@ -47,7 +47,7 @@ def get_encoder(t):
 
 def get_decoder(t):
     """Get decoder by alias name."""
-    return _decoders[_aliases.get(t, t)]
+    pass
 
 
 def compress(body, content_type):
@@ -70,7 +70,7 @@ def decompress(body, content_type):
         body (AnyStr): Previously compressed text to uncompress.
         content_type (str): mime-type of compression method used.
     """
-    return get_decoder(content_type)(body)
+    pass
 
 
 register(zlib.compress,

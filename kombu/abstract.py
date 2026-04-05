@@ -26,11 +26,11 @@ _MaybeChannelBoundType = TypeVar(
 def unpickle_dict(
     cls: type[_ObjectType], kwargs: dict[str, Any]
 ) -> _ObjectType:
-    return cls(**kwargs)
+    pass
 
 
 def _any(v: _T) -> _T:
-    return v
+    pass
 
 
 class Object:
@@ -53,13 +53,7 @@ class Object:
                     setattr(self, name, None)
 
     def as_dict(self, recurse: bool = False) -> dict[str, Any]:
-        def f(obj: Any, type: Callable[[Any], Any] | None = None) -> Any:
-            if recurse and isinstance(obj, Object):
-                return obj.as_dict(recurse=True)
-            return type(obj) if type and obj is not None else obj
-        return {
-            attr: f(getattr(self, attr), type) for attr, type in self.attrs
-        }
+        pass
 
     def __reduce__(self: _ObjectType) -> tuple[
         Callable[[type[_ObjectType], dict[str, Any]], _ObjectType],
@@ -119,16 +113,12 @@ class MaybeChannelBound(Object):
         return self._repr_entity(type(self).__name__)
 
     def _repr_entity(self, item: str = '') -> str:
-        item = item or type(self).__name__
-        if self.is_bound:
-            return '<{} bound to chan:{}>'.format(
-                item or type(self).__name__, self.channel.channel_id)
-        return f'<unbound {item}>'
+        pass
 
     @property
     def is_bound(self) -> bool:
         """Flag set if the channel is bound."""
-        return self._is_bound and self._channel is not None
+        pass
 
     @property
     def channel(self) -> Channel:

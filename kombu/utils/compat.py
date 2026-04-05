@@ -29,13 +29,7 @@ def get_gevent_concurrent_error():
     the common startup ordering where kombu is imported before gevent's
     monkey-patching takes place.
     """
-    if 'gevent' in sys.modules:
-        try:
-            from gevent.exceptions import ConcurrentObjectUseError
-            return ConcurrentObjectUseError
-        except ImportError:
-            pass
-    return None
+    pass
 
 
 _environment = None
@@ -43,12 +37,7 @@ _environment = None
 
 def coro(gen):
     """Decorator to mark generator as co-routine."""
-    @wraps(gen)
-    def wind_up(*args, **kwargs):
-        it = gen(*args, **kwargs)
-        next(it)
-        return it
-    return wind_up
+    pass
 
 
 def _detect_environment():
@@ -89,19 +78,7 @@ def detect_environment():
 
 def entrypoints(namespace):
     """Return setuptools entrypoints for namespace."""
-    if sys.version_info >= (3,10):
-        entry_points = importlib_metadata.entry_points(group=namespace)
-    else:
-        entry_points = importlib_metadata.entry_points()
-        try:
-            entry_points = entry_points.get(namespace, [])
-        except AttributeError:
-            entry_points = entry_points.select(group=namespace)
-
-    return (
-        (ep, ep.load())
-        for ep in entry_points
-    )
+    pass
 
 
 def fileno(f):
@@ -113,10 +90,7 @@ def fileno(f):
 
 def maybe_fileno(f):
     """Get object fileno, or :const:`None` if not defined."""
-    try:
-        return fileno(f)
-    except FILENO_ERRORS:
-        pass
+    pass
 
 
 @contextmanager

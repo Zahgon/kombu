@@ -103,4 +103,4 @@ class Transport(virtual.Transport):
         self.state = self.global_state
 
     def driver_version(self):
-        return 'N/A'
+        pass

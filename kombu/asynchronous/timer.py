@@ -40,12 +40,7 @@ def to_timestamp(d, default_timezone=ZoneInfo("UTC"), time=monotonic):
 
     If d' is already a timestamp, then that will be used.
     """
-    if isinstance(d, datetime):
-        if d.tzinfo is None:
-            d = d.replace(tzinfo=default_timezone)
-        diff = _time() - time()
-        return max((d - EPOCH).total_seconds() - diff, 0)
-    return d
+    pass
 
 
 @total_ordering
@@ -85,11 +80,11 @@ class Entry:
 
     @property
     def cancelled(self):
-        return self.canceled
+        pass
 
     @cancelled.setter
     def cancelled(self, value):
-        self.canceled = value
+        pass
 
 
 class Timer:
@@ -116,34 +111,14 @@ class Timer:
         self.stop()
 
     def call_at(self, eta, fun, args=(), kwargs=None, priority=0):
-        kwargs = {} if not kwargs else kwargs
-        return self.enter_at(self.Entry(fun, args, kwargs), eta, priority)
+        pass
 
     def call_after(self, secs, fun, args=(), kwargs=None, priority=0):
         kwargs = {} if not kwargs else kwargs
         return self.enter_after(secs, self.Entry(fun, args, kwargs), priority)
 
     def call_repeatedly(self, secs, fun, args=(), kwargs=None, priority=0):
-        kwargs = {} if not kwargs else kwargs
-        tref = self.Entry(fun, args, kwargs)
-
-        @wraps(fun)
-        def _reschedules(*args, **kwargs):
-            last, now = tref._last_run, monotonic()
-            lsince = (now - tref._last_run) if last else secs
-            try:
-                if lsince and lsince >= secs:
-                    tref._last_run = now
-                    return fun(*args, **kwargs)
-            finally:
-                if not tref.canceled:
-                    last = tref._last_run
-                    next = secs - (now - last) if last else secs
-                    self.enter_after(next, tref, priority)
-
-        tref.fun = _reschedules
-        tref._last_run = None
-        return self.enter_after(secs, tref, priority)
+        pass
 
     def enter_at(self, entry, eta=None, priority=0, time=monotonic):
         """Enter function into the scheduler.
@@ -154,35 +129,19 @@ class Timer:
             eta (datetime.datetime): Scheduled time.
             priority (int): Unused.
         """
-        if eta is None:
-            eta = time()
-        if isinstance(eta, datetime):
-            try:
-                eta = to_timestamp(eta)
-            except Exception as exc:
-                if not self.handle_error(exc):
-                    raise
-                return
-        return self._enter(eta, priority, entry)
+        pass
 
     def enter_after(self, secs, entry, priority=0, time=monotonic):
-        return self.enter_at(entry, time() + float(secs), priority)
+        pass
 
     def _enter(self, eta, priority, entry, push=heapq.heappush):
-        push(self._queue, scheduled(eta, priority, entry))
-        return entry
+        pass
 
     def apply_entry(self, entry):
-        try:
-            entry()
-        except Exception as exc:
-            if not self.handle_error(exc):
-                logger.error('Error in timer: %r', exc, exc_info=True)
+        pass
 
     def handle_error(self, exc_info):
-        if self.on_error:
-            self.on_error(exc_info)
-            return True
+        pass
 
     def stop(self):
         pass
@@ -238,4 +197,4 @@ class Timer:
 
     @property
     def schedule(self):
-        return self
+        pass

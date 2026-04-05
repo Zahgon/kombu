@@ -273,7 +273,7 @@ class Channel(virtual.Channel):
 
     @cached_property
     def lock_name(self):
-        return f'{socket.gethostname()}'
+        pass
 
 
 class Transport(virtual.Transport):
@@ -305,19 +305,7 @@ class Transport(virtual.Transport):
         super().__init__(*args, **kwargs)
 
     def verify_connection(self, connection):
-        port = connection.client.port or self.default_port
-        host = connection.client.hostname or DEFAULT_HOST
-
-        logger.debug('Verify Consul connection to %s:%s', host, port)
-
-        try:
-            client = consul.Consul(host=host, port=int(port))
-            client.agent.self()
-            return True
-        except ValueError:
-            pass
-
-        return False
+        pass
 
     def driver_version(self):
-        return consul.__version__
+        pass

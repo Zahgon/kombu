@@ -130,13 +130,7 @@ class BrokerState:
         self.queue_index[queue].add(key)
 
     def binding_delete(self, queue, exchange, routing_key):
-        key = binding_key_t(queue, exchange, routing_key)
-        try:
-            del self.bindings[key]
-        except KeyError:
-            pass
-        else:
-            self.queue_index[queue].remove(key)
+        pass
 
     def queue_bindings_delete(self, queue):
         try:
@@ -216,9 +210,7 @@ class QoS:
         -------
             int: greater than zero.
         """
-        pcount = self.prefetch_count
-        if pcount:
-            return max(pcount - (len(self._delivered) - len(self._dirty)), 0)
+        pass
 
     def append(self, message, delivery_tag):
         """Append message to transactional state."""
@@ -414,8 +406,7 @@ class AbstractChannel:
         return cycle.get(callback)
 
     def _get_and_deliver(self, queue, callback):
-        message = self._get(queue)
-        callback(message, queue)
+        pass
 
 
 class Channel(AbstractChannel, base.StdChannel):
@@ -579,22 +570,10 @@ class Channel(AbstractChannel, base.StdChannel):
     def queue_unbind(self, queue, exchange=None, routing_key='',
                      arguments=None, **kwargs):
         # Remove queue binding:
-        self.state.binding_delete(queue, exchange, routing_key)
-        try:
-            table = self.get_table(exchange)
-        except KeyError:
-            return
-        binding_meta = self.typeof(exchange).prepare_bind(
-            queue, exchange, routing_key, arguments,
-        )
-        # TODO: the complexity of this operation is O(number of bindings).
-        # Should be optimized.  Modifying table in place.
-        table[:] = [meta for meta in table if meta != binding_meta]
+        pass
 
     def list_bindings(self):
-        return ((queue, exchange, rkey)
-                for exchange in self.state.exchanges
-                for rkey, pattern, queue in self.get_table(exchange))
+        pass
 
     def queue_purge(self, queue, **kwargs):
         """Remove all ready messages from queue."""
@@ -633,10 +612,7 @@ class Channel(AbstractChannel, base.StdChannel):
         self._active_queues.append(queue)
 
         def _callback(raw_message):
-            message = self.Message(raw_message, channel=self)
-            if not no_ack:
-                self.qos.append(message, message.delivery_tag)
-            return callback(message)
+            pass
 
         self.connection._callbacks[queue] = _callback
         self._consumers.add(consumer_tag)
@@ -671,9 +647,7 @@ class Channel(AbstractChannel, base.StdChannel):
 
     def basic_recover(self, requeue=False):
         """Recover unacked messages."""
-        if requeue:
-            return self.qos.restore_unacked()
-        raise NotImplementedError('Does not support recover(requeue=False)')
+        pass
 
     def basic_reject(self, delivery_tag, requeue=False):
         """Reject message."""
@@ -690,7 +664,7 @@ class Channel(AbstractChannel, base.StdChannel):
         self.qos.prefetch_count = prefetch_count
 
     def get_exchanges(self):
-        return list(self.state.exchanges)
+        pass
 
     def get_table(self, exchange):
         """Get table of bindings for `exchange`."""
@@ -756,9 +730,7 @@ class Channel(AbstractChannel, base.StdChannel):
 
     def message_to_python(self, raw_message):
         """Convert raw message to :class:`Message` instance."""
-        if not isinstance(raw_message, self.Message):
-            return self.Message(payload=raw_message, channel=self)
-        return raw_message
+        pass
 
     def prepare_message(self, body, priority=None, content_type=None,
                         content_encoding=None, headers=None, properties=None):
@@ -807,9 +779,7 @@ class Channel(AbstractChannel, base.StdChannel):
         return body, encoding
 
     def decode_body(self, body, encoding=None):
-        if encoding and encoding.lower() != 'utf-8':
-            return self.codecs.get(encoding).decode(body)
-        return body
+        pass
 
     def _reset_cycle(self):
         self._cycle = FairCycle(
@@ -829,7 +799,7 @@ class Channel(AbstractChannel, base.StdChannel):
     @property
     def state(self):
         """Broker state containing exchanges and bindings."""
-        return self.connection.state
+        pass
 
     @property
     def qos(self):
@@ -840,9 +810,7 @@ class Channel(AbstractChannel, base.StdChannel):
 
     @property
     def cycle(self):
-        if self._cycle is None:
-            self._reset_cycle()
-        return self._cycle
+        pass
 
     def _get_message_priority(self, message, reverse=False):
         """Get priority from message.
@@ -867,18 +835,7 @@ class Channel(AbstractChannel, base.StdChannel):
     def _get_free_channel_id(self):
         # Cast to a set for fast lookups, and keep stored as an array
         # for lower memory usage.
-        used_channel_ids = set(self.connection._used_channel_ids)
-
-        for channel_id in range(1, self.connection.channel_max + 1):
-            if channel_id not in used_channel_ids:
-                self.connection._used_channel_ids.append(channel_id)
-                return channel_id
-
-        raise ResourceError(
-            'No free channel ids, current={}, channel_max={}'.format(
-                len(self.connection.channels),
-                self.connection.channel_max), (20, 10),
-        )
+        pass
 
 
 class Management(base.Management):
@@ -889,8 +846,7 @@ class Management(base.Management):
         self.channel = transport.client.channel()
 
     def get_bindings(self):
-        return [{'destination': q, 'source': e, 'routing_key': r}
-                for q, e, r in self.channel.list_bindings()]
+        pass
 
     def close(self):
         self.channel.close()
@@ -1025,15 +981,11 @@ class Transport(base.Transport):
                 break
 
     def on_message_ready(self, channel, message, queue):
-        if not queue or queue not in self._callbacks:
-            raise KeyError(
-                'Message for queue {!r} without consumers: {}'.format(
-                    queue, message))
-        self._callbacks[queue](message)
+        pass
 
     def _drain_channel(self, channel, callback, timeout=None):
-        return channel.drain_events(callback=callback, timeout=timeout)
+        pass
 
     @property
     def default_connection_params(self):
-        return {'port': self.default_port, 'hostname': 'localhost'}
+        pass

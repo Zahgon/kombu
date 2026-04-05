@@ -37,7 +37,7 @@ class Queue:
 
     @declared_attr
     def messages(cls):
-        return relationship('Message', backref='queue', lazy='noload')
+        pass
 
 
 class Message:
@@ -67,10 +67,4 @@ class Message:
 
     @declared_attr
     def queue_id(self):
-        return Column(
-            Integer,
-            ForeignKey(
-                '%s.id' % class_registry['Queue'].__tablename__,
-                name='FK_kombu_message_queue'
-            )
-        )
+        pass

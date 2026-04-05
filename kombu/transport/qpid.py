@@ -152,7 +152,7 @@ def dependency_is_none(dependency):
     :return: True if dependency is None otherwise False.
 
     """
-    return dependency is None
+    pass
 
 
 class AuthenticationFailure(Exception):
@@ -222,9 +222,7 @@ class QoS:
         :rtype: int
 
         """
-        return 1 if not self.prefetch_count else (
-            self.prefetch_count - len(self._not_yet_acked)
-        )
+        pass
 
     def append(self, message, delivery_tag):
         """Append message to the list of un-ACKed messages.
@@ -791,7 +789,7 @@ class Channel(base.StdChannel):
         :type routing_key: str
 
         """
-        self._broker.unbind(exchange, queue, routing_key)
+        pass
 
     def queue_purge(self, queue, **kwargs):
         """Remove all undelivered messages from queue.
@@ -975,14 +973,7 @@ class Channel(base.StdChannel):
         self._tag_to_queue[consumer_tag] = queue
 
         def _callback(qpid_message):
-            raw_message = qpid_message.content
-            message = self.Message(raw_message, channel=self)
-            delivery_tag = message.delivery_tag
-            self.qos.append(qpid_message, delivery_tag)
-            if no_ack:
-                # Celery will not ack this message later, so we should ack now
-                self.basic_ack(delivery_tag)
-            return callback(message)
+            pass
 
         self.connection._callbacks[queue] = _callback
         new_receiver = self.transport.session.receiver(queue)
@@ -1191,9 +1182,7 @@ class Channel(base.StdChannel):
         :rtype: str
 
         """
-        if encoding:
-            return self.codecs.get(encoding).decode(body)
-        return body
+        pass
 
     def typeof(self, exchange, default='direct'):
         """Get the exchange type.
@@ -1464,25 +1453,13 @@ class Transport(base.Transport):
         :raises: RuntimeError if the runtime environment is not acceptable.
 
         """
-        if dependency_is_none(qpidtoollibs):
-            raise RuntimeError(
-                'The Python package "qpidtoollibs" is missing. Install it '
-                'with your package manager. You can also try `pip install '
-                'qpid-tools`.')
-
-        if dependency_is_none(qpid):
-            raise RuntimeError(
-                'The Python package "qpid.messaging" is missing. Install it '
-                'with your package manager. You can also try `pip install '
-                'qpid-python`.')
+        pass
 
     def _qpid_message_ready_handler(self, session):
-        if self.use_async_interface:
-            os.write(self._w, '0')
+        pass
 
     def _qpid_async_exception_notify_handler(self, obj_with_exception, exc):
-        if self.use_async_interface:
-            os.write(self._w, 'e')
+        pass
 
     def on_readable(self, connection, loop):
         """Handle any messages associated with this Transport.
@@ -1565,11 +1542,7 @@ class Transport(base.Transport):
         :type loop: kombu.asynchronous.hub.Hub
 
         """
-        self.r, self._w = os.pipe()
-        if fcntl is not None:
-            fcntl.fcntl(self.r, fcntl.F_SETFL, os.O_NONBLOCK)
-        self.use_async_interface = True
-        loop.add_reader(self.r, self.on_readable, connection, loop)
+        pass
 
     def establish_connection(self):
         """Establish a Connection object.
@@ -1732,10 +1705,7 @@ class Transport(base.Transport):
         :rtype: dict
 
         """
-        return {
-            'hostname': 'localhost',
-            'port': 5672,
-        }
+        pass
 
     def __del__(self):
         """Ensure file descriptors opened in __init__() are closed."""

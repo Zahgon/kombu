@@ -131,9 +131,7 @@ class AtomicCounter:
         self._lock = Lock()
 
     def inc(self, n=1):
-        with self._lock:
-            self._value += n
-            return self._value
+        pass
 
     def dec(self, n=1):
         with self._lock:
@@ -428,59 +426,10 @@ class Channel(virtual.Channel):
 
     def _get_bulk(self, queue: str, timeout: float):
         """Retrieves bulk of messages from a queue."""
-        prefixed_queue = self.entity_name(queue)
-        qdesc = self._queue_cache[prefixed_queue]
-        max_messages = self._get_max_messages_estimate()
-        if not max_messages:
-            raise Empty()
-        try:
-            response = self.subscriber.pull(
-                request={
-                    'subscription': qdesc.subscription_path,
-                    'max_messages': max_messages,
-                },
-                retry=Retry(deadline=self.retry_timeout_seconds),
-                timeout=timeout or self.wait_time_seconds,
-            )
-        except DeadlineExceeded:
-            raise Empty()
-
-        received_messages = response.received_messages
-        if len(received_messages) == 0:
-            raise Empty()
-
-        auto_ack_ids = []
-        ret_payloads = []
-        logger.debug(
-            'batching %d messages from queue: %s',
-            len(received_messages),
-            prefixed_queue,
-        )
-        for message in received_messages:
-            ack_id = message.ack_id
-            payload = loads(bytes_to_str(message.message.data))
-            delivery_info = payload['properties']['delivery_info']
-            delivery_info['gcpubsub_message'] = {
-                'queue': prefixed_queue,
-                'ack_id': ack_id,
-                'message_id': message.message.message_id,
-                'subscription_path': qdesc.subscription_path,
-            }
-            if self._is_auto_ack(payload['properties']):
-                auto_ack_ids.append(ack_id)
-            else:
-                qdesc.unacked_ids.append(ack_id)
-            ret_payloads.append(payload)
-        if auto_ack_ids:
-            logger.debug('auto acking ack_ids: %s', auto_ack_ids)
-            self._do_ack(auto_ack_ids, qdesc.subscription_path)
-
-        return queue, ret_payloads
+        pass
 
     def _get_max_messages_estimate(self) -> int:
-        max_allowed = self.qos.can_consume_max_estimate()
-        max_if_unlimited = self.bulk_max_messages
-        return max_if_unlimited if max_allowed is None else max_allowed
+        pass
 
     def _lookup(self, exchange, routing_key, default=None):
         exchange_info = self.state.exchanges.get(exchange, {})
@@ -572,48 +521,7 @@ class Channel(virtual.Channel):
         return n
 
     def _extend_unacked_deadline(self):
-        thread_id = threading.get_native_id()
-        logger.info(
-            'unacked deadline extension thread: [%s] started',
-            thread_id,
-        )
-        min_deadline_sleep = self._min_ack_deadline / 2
-        sleep_time = max(min_deadline_sleep, self.ack_deadline_seconds / 4)
-        while not self._stop_extender.wait(sleep_time):
-            for qdesc in self._queue_cache.values():
-                if len(qdesc.unacked_ids) == 0:
-                    logger.debug(
-                        'thread [%s]: no unacked messages for %s',
-                        thread_id,
-                        qdesc.subscription_path,
-                    )
-                    continue
-                logger.debug(
-                    'thread [%s]: extend ack deadline for %s: %d msgs [%s]',
-                    thread_id,
-                    qdesc.subscription_path,
-                    len(qdesc.unacked_ids),
-                    list(qdesc.unacked_ids),
-                )
-                try:
-                    self.subscriber.modify_ack_deadline(
-                        request={
-                            "subscription": qdesc.subscription_path,
-                            "ack_ids": list(qdesc.unacked_ids),
-                            "ack_deadline_seconds": self.ack_deadline_seconds,
-                        }
-                    )
-                except Exception as exc:
-                    logger.error(
-                        'thread [%s]: failed to extend ack deadline for %s: %s',
-                        thread_id,
-                        qdesc.subscription_path,
-                        exc,
-                        exc_info=True,
-                    )
-        logger.info(
-            'unacked deadline extension thread [%s] stopped', thread_id
-        )
+        pass
 
     def after_reply_message_received(self, queue: str):
         queue = self.entity_name(queue)
@@ -625,64 +533,51 @@ class Channel(virtual.Channel):
 
     @cached_property
     def subscriber(self):
-        return SubscriberClient()
+        pass
 
     @cached_property
     def publisher(self):
-        return PublisherClient()
+        pass
 
     @cached_property
     def monitor(self):
-        return monitoring_v3.MetricServiceClient()
+        pass
 
     @property
     def conninfo(self):
-        return self.connection.client
+        pass
 
     @property
     def transport_options(self):
-        return self.connection.client.transport_options
+        pass
 
     @cached_property
     def wait_time_seconds(self):
-        return self.transport_options.get(
-            'wait_time_seconds', self.default_wait_time_seconds
-        )
+        pass
 
     @cached_property
     def retry_timeout_seconds(self):
-        return self.transport_options.get(
-            'retry_timeout_seconds', self.default_retry_timeout_seconds
-        )
+        pass
 
     @cached_property
     def ack_deadline_seconds(self):
-        return self.transport_options.get(
-            'ack_deadline_seconds', self.default_ack_deadline_seconds
-        )
+        pass
 
     @cached_property
     def queue_name_prefix(self):
-        return self.transport_options.get('queue_name_prefix', 'kombu-')
+        pass
 
     @cached_property
     def expiration_seconds(self):
-        return self.transport_options.get(
-            'expiration_seconds', self.default_expiration_seconds
-        )
+        pass
 
     @cached_property
     def bulk_max_messages(self):
-        return self.transport_options.get(
-            'bulk_max_messages', self.default_bulk_max_messages
-        )
+        pass
 
     @cached_property
     def enable_exactly_once_delivery(self):
-        return self.transport_options.get(
-            'enable_exactly_once_delivery',
-            self.default_enable_exactly_once_delivery
-        )
+        pass
 
     def close(self):
         """Close the channel."""
@@ -744,7 +639,7 @@ class Transport(virtual.Transport):
         self._get_bulk_future_to_queue: dict[Future, str] = dict()
 
     def driver_version(self):
-        return package_version.__version__
+        pass
 
     @staticmethod
     def parse_uri(uri: str) -> str:

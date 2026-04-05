@@ -91,15 +91,11 @@ class LaxBoundedSemaphore:
 
     def grow(self, n: int = 1) -> None:
         """Change the size of the semaphore to accept more users."""
-        self.initial_value += n
-        self.value += n
-        for _ in range(n):
-            self.release()
+        pass
 
     def shrink(self, n: int = 1) -> None:
         """Change the size of the semaphore to accept less users."""
-        self.initial_value = max(self.initial_value - n, 0)
-        self.value = max(self.value - n, 0)
+        pass
 
     def clear(self) -> None:
         """Reset the semaphore, which also wipes out any waiting callbacks."""

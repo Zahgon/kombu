@@ -11,7 +11,7 @@ _all__ = ['AsyncQueue']
 
 def list_first(rs):
     """Get the first item in a list, or None if list empty."""
-    return rs[0] if len(rs) == 1 else None
+    pass
 
 
 class AsyncQueue:
@@ -35,41 +35,26 @@ class AsyncQueue:
         )
 
     def set_attribute(self, attribute, value, callback=None):
-        return self.connection.set_queue_attribute(
-            self, attribute, value, callback,
-        )
+        pass
 
     def get_timeout(self, callback=None, _attr='VisibilityTimeout'):
-        return self.get_attributes(
-            _attr, transform(
-                self._coerce_field_value, callback, _attr, int,
-            ),
-        )
+        pass
 
     def _coerce_field_value(self, key, type, response):
-        return type(response[key])
+        pass
 
     def set_timeout(self, visibility_timeout, callback=None):
-        return self.set_attribute(
-            'VisibilityTimeout', visibility_timeout,
-            transform(
-                self._on_timeout_set, callback,
-            )
-        )
+        pass
 
     def _on_timeout_set(self, visibility_timeout):
-        if visibility_timeout:
-            self.visibility_timeout = visibility_timeout
-        return self.visibility_timeout
+        pass
 
     def add_permission(self, label, aws_account_id, action_name,
                        callback=None):
-        return self.connection.add_permission(
-            self, label, aws_account_id, action_name, callback,
-        )
+        pass
 
     def remove_permission(self, label, callback=None):
-        return self.connection.remove_permission(self, label, callback)
+        pass
 
     def read(self, visibility_timeout=None, wait_time_seconds=None,
              callback=None):
@@ -86,14 +71,10 @@ class AsyncQueue:
         )
 
     def write_batch(self, messages, callback=None):
-        return self.connection.send_message_batch(
-            self, messages, callback=callback,
-        )
+        pass
 
     def _on_message_sent(self, orig_message, new_message):
-        orig_message.id = new_message.id
-        orig_message.md5 = new_message.md5
-        return new_message
+        pass
 
     def get_messages(self, num_messages=1, visibility_timeout=None,
                      attributes=None, wait_time_seconds=None, callback=None):
@@ -109,14 +90,10 @@ class AsyncQueue:
         return self.connection.delete_message(self, message, callback)
 
     def delete_message_batch(self, messages, callback=None):
-        return self.connection.delete_message_batch(
-            self, messages, callback=callback,
-        )
+        pass
 
     def change_message_visibility_batch(self, messages, callback=None):
-        return self.connection.change_message_visibility_batch(
-            self, messages, callback=callback,
-        )
+        pass
 
     def delete(self, callback=None):
         return self.connection.delete_queue(self, callback=callback)

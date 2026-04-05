@@ -428,15 +428,15 @@ class Channel(virtual.Channel):
 
     @cached_property
     def messages(self):
-        return self.client[self.messages_collection]
+        pass
 
     @cached_property
     def routing(self):
-        return self.client[self.routing_collection]
+        pass
 
     @cached_property
     def broadcast(self):
-        return self.client[self.broadcast_collection]
+        pass
 
     @cached_property
     def queues(self):
@@ -539,7 +539,7 @@ class Transport(virtual.Transport):
     )
 
     def driver_version(self):
-        return pymongo.version
+        pass
 
     def as_uri(self, uri: str, include_password=False, mask='**') -> str:
         if not uri:

@@ -116,10 +116,7 @@ class QoS(virtual.QoS):
             .prefetch_count
 
     def can_consume_max_estimate(self):
-        if self.prefetch_count:
-            return self.prefetch_count - len(self._not_yet_acked)
-        else:
-            return 1
+        pass
 
     def append(self, message, delivery_tag):
         self._not_yet_acked[delivery_tag] = message
@@ -300,43 +297,23 @@ class Channel(virtual.Channel):
 
     @property
     def options(self):
-        return self.connection.client.transport_options
+        pass
 
     @property
     def conninfo(self):
-        return self.connection.client
+        pass
 
     @cached_property
     def wait_time_seconds(self):
-        return self.options.get(
-            'wait_time_seconds', self.default_wait_time_seconds
-        )
+        pass
 
     @cached_property
     def connection_wait_time_seconds(self):
-        return self.options.get(
-            'connection_wait_time_seconds',
-            self.default_connection_wait_time_seconds,
-        )
+        pass
 
     @cached_property
     def common_config(self):
-        conninfo = self.connection.client
-        config = {
-            'bootstrap.servers':
-                f'{conninfo.hostname}:{int(conninfo.port) or DEFAULT_PORT}',
-        }
-        security_protocol = self.options.get('security_protocol', 'plaintext')
-        if security_protocol.lower() != 'plaintext':
-            config.update({
-                'security.protocol': security_protocol,
-                'sasl.username': conninfo.userid,
-                'sasl.password': conninfo.password,
-                'sasl.mechanism': self.options.get('sasl_mechanism'),
-            })
-
-        config.update(self.options.get('kafka_common_config') or {})
-        return config
+        pass
 
     def close(self):
         super().close()
@@ -371,7 +348,7 @@ class Transport(virtual.Transport):
         super().__init__(client, **kwargs)
 
     def driver_version(self):
-        return confluent_kafka.__version__
+        pass
 
     def establish_connection(self):
         return super().establish_connection()

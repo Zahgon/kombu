@@ -18,26 +18,24 @@ default_encoding_file = None
 
 def set_default_encoding_file(file):
     """Set file used to get codec information."""
-    global default_encoding_file
-    default_encoding_file = file
+    pass
 
 
 def get_default_encoding_file():
     """Get file used to get codec information."""
-    return default_encoding_file
+    pass
 
 
 if sys.platform.startswith('java'):  # pragma: no cover
 
     def default_encoding(file=None):
         """Get default encoding."""
-        return 'utf-8'
+        pass
 else:
 
     def default_encoding(file=None):
         """Get default encoding."""
-        file = file or get_default_encoding_file()
-        return getattr(file, 'encoding', None) or sys.getfilesystemencoding()
+        pass
 
 
 def str_to_bytes(s):
@@ -56,7 +54,7 @@ def bytes_to_str(s):
 
 def from_utf8(s, *args, **kwargs):
     """Get str from utf-8 encoding."""
-    return s
+    pass
 
 
 def ensure_bytes(s):

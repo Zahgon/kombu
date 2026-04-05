@@ -23,32 +23,11 @@ class JSONEncoder(json.JSONEncoder):
     """Kombu custom json encoder."""
 
     def default(self, o):
-        reducer = getattr(o, "__json__", None)
-        if reducer is not None:
-            return reducer()
-
-        if isinstance(o, textual_types):
-            return str(o)
-
-        for t, (marker, encoder) in _encoders.items():
-            if isinstance(o, t):
-                return (
-                    encoder(o) if marker is None else _as(marker, encoder(o))
-                )
-
-        # Bytes is slightly trickier, so we cannot put them directly
-        # into _encoders, because we use two formats: bytes, and base64.
-        if isinstance(o, bytes):
-            try:
-                return _as("bytes", o.decode("utf-8"))
-            except UnicodeDecodeError:
-                return _as("base64", base64.b64encode(o).decode("utf-8"))
-
-        return super().default(o)
+        pass
 
 
 def _as(t: str, v: Any):
-    return {"__type__": t, "__value__": v}
+    pass
 
 
 def dumps(
@@ -65,14 +44,7 @@ def dumps(
 
 def object_hook(o: dict):
     """Hook function to perform custom deserialization."""
-    if o.keys() == {"__type__", "__value__"}:
-        decoder = _decoders.get(o["__type__"])
-        if decoder:
-            return decoder(o["__value__"])
-        else:
-            raise ValueError("Unsupported type", type, o)
-    else:
-        return o
+    pass
 
 
 def loads(s, _loads=json.loads, decode_bytes=True, object_hook=object_hook):

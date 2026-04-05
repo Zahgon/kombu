@@ -108,4 +108,4 @@ class sorted_cycle(priority_cycle):
 
 def cycle_by_name(name):
     """Get cycle class by name."""
-    return symbol_by_name(name, CYCLE_ALIASES)
+    pass

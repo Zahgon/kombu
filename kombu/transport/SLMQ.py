@@ -151,41 +151,23 @@ class Channel(virtual.Channel):
 
     @property
     def slmq(self):
-        if self._slmq is None:
-            conninfo = self.conninfo
-            account = os.environ.get('SLMQ_ACCOUNT', conninfo.virtual_host)
-            user = os.environ.get('SL_USERNAME', conninfo.userid)
-            api_key = os.environ.get('SL_API_KEY', conninfo.password)
-            host = os.environ.get('SLMQ_HOST', conninfo.hostname)
-            port = os.environ.get('SLMQ_PORT', conninfo.port)
-            secure = bool(os.environ.get(
-                'SLMQ_SECURE', self.transport_options.get('secure')) or True,
-            )
-            endpoint = '{}://{}{}'.format(
-                'https' if secure else 'http', host,
-                f':{port}' if port else '',
-            )
-
-            self._slmq = get_client(account, endpoint=endpoint)
-            self._slmq.authenticate(user, api_key)
-        return self._slmq
+        pass
 
     @property
     def conninfo(self):
-        return self.connection.client
+        pass
 
     @property
     def transport_options(self):
-        return self.connection.client.transport_options
+        pass
 
     @cached_property
     def visibility_timeout(self):
-        return (self.transport_options.get('visibility_timeout') or
-                self.default_visibility_timeout)
+        pass
 
     @cached_property
     def queue_name_prefix(self):
-        return self.transport_options.get('queue_name_prefix', '')
+        pass
 
 
 class Transport(virtual.Transport):

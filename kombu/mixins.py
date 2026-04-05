@@ -152,31 +152,17 @@ class ConsumerMixin:
         pass
 
     def on_decode_error(self, message, exc):
-        error("Can't decode message body: %r (type:%r encoding:%r raw:%r')",
-              exc, message.content_type, message.content_encoding,
-              safe_repr(message.body))
-        message.ack()
+        pass
 
     def on_connection_error(self, exc, interval):
-        warn(W_CONN_ERROR, interval, exc, exc_info=1)
+        pass
 
     @contextmanager
     def extra_context(self, connection, channel):
         yield
 
     def run(self, _tokens=1, **kwargs):
-        restart_limit = self.restart_limit
-        errors = (self.connection.connection_errors +
-                  self.connection.channel_errors)
-        while not self.should_stop:
-            try:
-                if restart_limit.can_consume(_tokens):  # pragma: no cover
-                    for _ in self.consume(limit=None, **kwargs):
-                        pass
-                else:
-                    sleep(restart_limit.expected_time(_tokens))
-            except errors:
-                warn(W_CONN_LOST, exc_info=1)
+        pass
 
     @contextmanager
     def consumer_context(self, **kwargs):
@@ -209,7 +195,7 @@ class ConsumerMixin:
 
     def maybe_conn_error(self, fun):
         """Use :func:`kombu.common.ignore_errors` instead."""
-        return ignore_errors(self, fun)
+        pass
 
     def create_connection(self):
         return self.connection.clone()
@@ -240,15 +226,15 @@ class ConsumerMixin:
 
     @cached_property
     def restart_limit(self):
-        return TokenBucket(1)
+        pass
 
     @cached_property
     def connection_errors(self):
-        return self.connection.connection_errors
+        pass
 
     @cached_property
     def channel_errors(self):
-        return self.connection.channel_errors
+        pass
 
 
 class ConsumerProducerMixin(ConsumerMixin):
@@ -291,13 +277,8 @@ class ConsumerProducerMixin(ConsumerMixin):
 
     @property
     def producer(self):
-        return Producer(self.producer_connection)
+        pass
 
     @property
     def producer_connection(self):
-        if self._producer_connection is None:
-            conn = self.connection.clone()
-            conn.ensure_connection(self.on_connection_error,
-                                   self.connect_max_retries)
-            self._producer_connection = conn
-        return self._producer_connection
+        pass

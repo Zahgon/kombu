@@ -23,10 +23,7 @@ class HashedSeq(list):
 
 def eqhash(o):
     """Call ``obj.__eqhash__``."""
-    try:
-        return o.__eqhash__()
-    except AttributeError:
-        return hash(o)
+    pass
 
 
 class EqualityDict(dict):

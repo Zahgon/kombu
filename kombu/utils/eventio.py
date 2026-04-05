@@ -113,18 +113,10 @@ class _kqueue:
                 pass
 
     def watch_file(self, fd):
-        ev = kevent(fd,
-                    filter=KQ_FILTER_VNODE,
-                    flags=KQ_EV_ADD | KQ_EV_ENABLE | KQ_EV_CLEAR,
-                    fflags=self.w_fflags)
-        self._kcontrol([ev], 0)
+        pass
 
     def unwatch_file(self, fd):
-        ev = kevent(fd,
-                    filter=KQ_FILTER_VNODE,
-                    flags=KQ_EV_DELETE,
-                    fflags=self.w_fflags)
-        self._kcontrol([ev], 0)
+        pass
 
     def _control(self, fd, events, flags):
         if not events:

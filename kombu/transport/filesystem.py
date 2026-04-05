@@ -306,27 +306,27 @@ class Channel(virtual.Channel):
 
     @property
     def transport_options(self):
-        return self.connection.client.transport_options
+        pass
 
     @cached_property
     def data_folder_in(self):
-        return self.transport_options.get('data_folder_in', 'data_in')
+        pass
 
     @cached_property
     def data_folder_out(self):
-        return self.transport_options.get('data_folder_out', 'data_out')
+        pass
 
     @cached_property
     def store_processed(self):
-        return self.transport_options.get('store_processed', False)
+        pass
 
     @cached_property
     def processed_folder(self):
-        return self.transport_options.get('processed_folder', 'processed')
+        pass
 
     @property
     def control_folder(self):
-        return Path(self.transport_options.get('control_folder', 'control'))
+        pass
 
 
 class Transport(virtual.Transport):
@@ -349,4 +349,4 @@ class Transport(virtual.Transport):
         self.state = self.global_state
 
     def driver_version(self):
-        return 'N/A'
+        pass

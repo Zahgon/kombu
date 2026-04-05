@@ -205,10 +205,10 @@ class Transport:
         pass
 
     def driver_version(self):
-        return 'N/A'
+        pass
 
     def get_heartbeat_interval(self, connection):
-        return 0
+        pass
 
     def register_with_event_loop(self, connection, loop):
         pass
@@ -217,29 +217,19 @@ class Transport:
         pass
 
     def verify_connection(self, connection):
-        return True
+        pass
 
     def _make_reader(self, connection, timeout=socket.timeout,
                      error=socket.error, _unavail=(errno.EAGAIN, errno.EINTR)):
         drain_events = connection.drain_events
 
         def _read(loop):
-            if not connection.connected:
-                raise RecoverableConnectionError('Socket was disconnected')
-            try:
-                drain_events(timeout=0)
-            except timeout:
-                return
-            except error as exc:
-                if exc.errno in _unavail:
-                    return
-                raise
-            loop.call_soon(_read, loop)
+            pass
 
         return _read
 
     def qos_semantics_matches_spec(self, connection):
-        return True
+        pass
 
     def on_readable(self, connection, loop):
         reader = self.__reader
@@ -253,19 +243,19 @@ class Transport:
 
     @property
     def default_connection_params(self):
-        return {}
+        pass
 
     def get_manager(self, *args, **kwargs):
-        return self.Management(self)
+        pass
 
     @cached_property
     def manager(self):
-        return self.get_manager()
+        pass
 
     @property
     def supports_heartbeats(self):
-        return self.implements.heartbeats
+        pass
 
     @property
     def supports_ev(self):
-        return self.implements.asynchronous
+        pass

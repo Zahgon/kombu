@@ -59,23 +59,7 @@ def resolve_transport(transport: str | None = None) -> str | None:
             an actual transport class, or the fully qualified
             path to a transport class, or the alias of a transport.
     """
-    if isinstance(transport, str):
-        try:
-            transport = TRANSPORT_ALIASES[transport]
-        except KeyError:
-            if '.' not in transport and ':' not in transport:
-                from kombu.utils.text import fmatch_best
-                alt = fmatch_best(transport, TRANSPORT_ALIASES)
-                if alt:
-                    raise KeyError(
-                        'No such transport: {}.  Did you mean {}?'.format(
-                            transport, alt))
-                raise KeyError(f'No such transport: {transport}')
-        else:
-            if callable(transport):
-                transport = transport()
-        return symbol_by_name(transport)
-    return transport
+    pass
 
 
 def get_transport_cls(transport: str | None = None) -> str | None:
@@ -88,6 +72,4 @@ def get_transport_cls(transport: str | None = None) -> str | None:
     If the name does not include `"."` (is not fully qualified),
     the alias table will be consulted.
     """
-    if transport not in _transport_cache:
-        _transport_cache[transport] = resolve_transport(transport)
-    return _transport_cache[transport]
+    pass

@@ -47,7 +47,7 @@ def _reraise_errors(wrapper,
 
 def pickle_loads(s, load=pickle_load):
     # used to support buffer objects
-    return load(BytesIO(s))
+    pass
 
 
 def parenthesize_alias(first, second):
@@ -334,7 +334,7 @@ def register_yaml():
 
 
 def unpickle(s):
-    return pickle_loads(str_to_bytes(s))
+    pass
 
 
 def register_pickle():
@@ -344,7 +344,7 @@ def register_pickle():
     you to python clients.
     """
     def pickle_dumps(obj, dumper=pickle.dumps):
-        return dumper(obj, protocol=pickle_protocol)
+        pass
 
     registry.register('pickle', pickle_dumps, unpickle,
                       content_type='application/x-python-serialize',
@@ -365,10 +365,10 @@ def register_msgpack():
             from msgpack import packb, unpackb
 
             def pack(s):  # noqa
-                return packb(s, use_bin_type=True)
+                pass
 
             def unpack(s):  # noqa
-                return unpackb(s, raw=False)
+                pass
         else:
             def version_mismatch(*args, **kwargs):
                 raise SerializerNotInstalled(
@@ -408,13 +408,7 @@ def enable_insecure_serializers(choices=NOTSET):
         can also specify a list of serializers (by name or content type)
         to enable.
     """
-    choices = ['pickle', 'yaml', 'msgpack'] if choices is NOTSET else choices
-    if choices is not None:
-        for choice in choices:
-            try:
-                registry.enable(choice)
-            except KeyError:
-                pass
+    pass
 
 
 def disable_insecure_serializers(allowed=NOTSET):

@@ -39,7 +39,7 @@ def _raise_stop_error():
 
 @contextmanager
 def _dummy_context(*args, **kwargs):
-    yield
+    pass
 
 
 def get_event_loop() -> Hub | None:
@@ -104,22 +104,17 @@ class Hub:
 
     @property
     def poller(self):
-        if not self._poller:
-            self._create_poller()
-        return self._poller
+        pass
 
     @poller.setter
     def poller(self, value):
-        self._poller = value
+        pass
 
     def reset(self):
-        self.close()
-        self._create_poller()
+        pass
 
     def _create_poller(self):
-        self._poller = poll()
-        self._register_fd = self._poller.register
-        self._unregister_fd = self._poller.unregister
+        pass
 
     def _close_poller(self):
         if self._poller is not None:
@@ -129,7 +124,7 @@ class Hub:
             self._unregister_fd = None
 
     def stop(self):
-        self.call_soon(_raise_stop_error)
+        pass
 
     def __repr__(self):
         return '<Hub@{:#x}: R:{} W:{}>'.format(
@@ -138,26 +133,7 @@ class Hub:
 
     def fire_timers(self, min_delay=1, max_delay=10, max_timers=10,
                     propagate=()):
-        timer = self.timer
-        delay = None
-        if timer and timer._queue:
-            for i in range(max_timers):
-                delay, entry = next(self.scheduler)
-                if entry is None:
-                    break
-                try:
-                    entry()
-                except propagate:
-                    raise
-                except (MemoryError, AssertionError):
-                    raise
-                except OSError as exc:
-                    if exc.errno == errno.ENOMEM:
-                        raise
-                    logger.error('Error in timer: %r', exc, exc_info=1)
-                except Exception as exc:
-                    logger.error('Error in timer: %r', exc, exc_info=1)
-        return min(delay or min_delay, max_delay)
+        pass
 
     def _remove_from_loop(self, fd):
         try:
@@ -185,21 +161,10 @@ class Hub:
         self._remove_from_loop(fd)
 
     def run_forever(self):
-        self._running = True
-        try:
-            while 1:
-                try:
-                    self.run_once()
-                except Stop:
-                    break
-        finally:
-            self._running = False
+        pass
 
     def run_once(self):
-        try:
-            next(self.loop)
-        except StopIteration:
-            self._loop = None
+        pass
 
     def call_soon(self, callback, *args):
         if not isinstance(callback, Thenable):
@@ -212,10 +177,10 @@ class Hub:
         return self.timer.call_after(delay, callback, args)
 
     def call_at(self, when, callback, *args):
-        return self.timer.call_at(when, callback, args)
+        pass
 
     def call_repeatedly(self, delay, callback, *args):
-        return self.timer.call_repeatedly(delay, callback, args)
+        pass
 
     def add_reader(self, fds, callback, *args):
         return self.add(fds, callback, READ | ERR, args)
@@ -224,24 +189,10 @@ class Hub:
         return self.add(fds, callback, WRITE, args)
 
     def remove_reader(self, fd):
-        writable = fd in self.writers
-        on_write = self.writers.get(fd)
-        try:
-            self._remove_from_loop(fd)
-        finally:
-            if writable:
-                cb, args = on_write
-                self.add(fd, cb, WRITE, args)
+        pass
 
     def remove_writer(self, fd):
-        readable = fd in self.readers
-        on_read = self.readers.get(fd)
-        try:
-            self._remove_from_loop(fd)
-        finally:
-            if readable:
-                cb, args = on_read
-                self.add(fd, cb, READ | ERR, args)
+        pass
 
     def _unregister(self, fd):
         try:
@@ -285,119 +236,24 @@ class Hub:
         self.consolidate.discard(fd)
 
     def on_callback_error(self, callback, exc):
-        logger.error(
-            'Callback %r raised exception: %r', callback, exc, exc_info=1,
-        )
+        pass
 
     def create_loop(self,
                     generator=generator, sleep=sleep, min=min, next=next,
                     Empty=Empty, StopIteration=StopIteration,
                     KeyError=KeyError, READ=READ, WRITE=WRITE, ERR=ERR):
-        readers, writers = self.readers, self.writers
-        poll = self.poller.poll
-        fire_timers = self.fire_timers
-        hub_remove = self.remove
-        scheduled = self.timer._queue
-        consolidate = self.consolidate
-        consolidate_callback = self.consolidate_callback
-        propagate = self.propagate_errors
-
-        while 1:
-            todo = self._pop_ready()
-
-            for item in todo:
-                if item:
-                    item()
-
-            poll_timeout = fire_timers(propagate=propagate) if scheduled else 1
-
-            for tick_callback in copy(self.on_tick):
-                tick_callback()
-
-            #  print('[[[HUB]]]: %s' % (self.repr_active(),))
-            if readers or writers:
-                to_consolidate = []
-                try:
-                    events = poll(poll_timeout)
-                    #  print('[EVENTS]: %s' % (self.repr_events(events),))
-                except ValueError:  # Issue celery/#882
-                    return
-
-                for fd, event in events or ():
-                    general_error = False
-                    if fd in consolidate and \
-                            writers.get(fd) is None:
-                        to_consolidate.append(fd)
-                        continue
-                    cb = cbargs = None
-
-                    if event & READ:
-                        try:
-                            cb, cbargs = readers[fd]
-                        except KeyError:
-                            self.remove_reader(fd)
-                            continue
-                    elif event & WRITE:
-                        try:
-                            cb, cbargs = writers[fd]
-                        except KeyError:
-                            self.remove_writer(fd)
-                            continue
-                    elif event & ERR:
-                        general_error = True
-                    else:
-                        logger.info(W_UNKNOWN_EVENT, event, fd)
-                        general_error = True
-
-                    if general_error:
-                        try:
-                            cb, cbargs = (readers.get(fd) or
-                                          writers.get(fd))
-                        except TypeError:
-                            pass
-
-                    if cb is None:
-                        self.remove(fd)
-                        continue
-
-                    if isinstance(cb, generator):
-                        try:
-                            next(cb)
-                        except OSError as exc:
-                            if exc.errno != errno.EBADF:
-                                raise
-                            hub_remove(fd)
-                        except StopIteration:
-                            pass
-                        except Exception:
-                            hub_remove(fd)
-                            raise
-                    else:
-                        try:
-                            cb(*cbargs)
-                        except Empty:
-                            pass
-                if to_consolidate:
-                    consolidate_callback(to_consolidate)
-            else:
-                # no sockets yet, startup is probably not done.
-                sleep(min(poll_timeout, 0.1))
-            yield
+        pass
 
     def repr_active(self):
-        from .debug import repr_active
-        return repr_active(self)
+        pass
 
     def repr_events(self, events):
-        from .debug import repr_events
-        return repr_events(self, events or [])
+        pass
 
     @cached_property
     def scheduler(self):
-        return iter(self.timer)
+        pass
 
     @property
     def loop(self):
-        if self._loop is None:
-            self._loop = self.create_loop()
-        return self._loop
+        pass

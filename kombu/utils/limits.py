@@ -48,7 +48,7 @@ class TokenBucket:
         return self.contents.popleft()
 
     def clear_pending(self):
-        self.contents.clear()
+        pass
 
     def can_consume(self, tokens=1):
         """Check if one or more tokens can be consumed.
@@ -74,9 +74,7 @@ class TokenBucket:
         -------
             float: the time in seconds.
         """
-        _tokens = self._get_tokens()
-        tokens = max(tokens, _tokens)
-        return (tokens - _tokens) / self.fill_rate
+        pass
 
     def _get_tokens(self):
         if self._tokens < self.capacity:

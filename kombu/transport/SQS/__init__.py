@@ -262,10 +262,7 @@ _SUPPORTED_BOTO_SERVICES = Literal["sqs", "sns"]
 
 def maybe_int(x):
     """Try to convert x' to int, or return x' if that fails."""
-    try:
-        return int(x)
-    except (TypeError, ValueError):
-        return x
+    pass
 
 
 class QoS(virtual.QoS):
@@ -359,19 +356,7 @@ class Channel(virtual.Channel):
         AWS requires FIFO queues to have a name
         that ends with the .fifo suffix.
         """
-        for queue_name, q in self.predefined_queues.items():
-            fifo_url = q['url'].endswith('.fifo')
-            fifo_name = queue_name.endswith('.fifo')
-            if fifo_url and not fifo_name:
-                raise InvalidQueueException(
-                    "Queue with url '{}' must have a name "
-                    "ending with .fifo".format(q['url'])
-                )
-            elif not fifo_url and fifo_name:
-                raise InvalidQueueException(
-                    "Queue with name '{}' is not a FIFO queue: "
-                    "'{}'".format(queue_name, q['url'])
-                )
+        pass
 
     def _update_queue_cache(self, queue_name_prefix):
         if self.predefined_queues:
@@ -672,27 +657,7 @@ class Channel(virtual.Channel):
         -------
             List[Message]
         """
-        # drain_events calls `can_consume` first, consuming
-        # a token, so we know that we are allowed to consume at least
-        # one message.
-
-        # Note: ignoring max_messages for SQS with boto3
-        max_count = self._get_message_estimate()
-        if max_count:
-            resp = self._receive_message(
-                queue=queue,
-                wait_time_seconds=self.wait_time_seconds,
-                max_number_of_messages=max_count
-            )
-
-            if messages := resp.get("Messages"):
-                for m in messages:
-                    m["Body"] = AsyncMessage(body=m["Body"]).decode()
-                for msg in self._messages_to_python(messages, queue):
-                    self.connection._deliver(msg, queue)
-                return
-
-        raise Empty()
+        pass
 
     def _get(self, queue):
         """Try to retrieve a single message off ``queue``."""
@@ -709,65 +674,22 @@ class Channel(virtual.Channel):
         raise Empty()
 
     def _loop1(self, queue, messages_fetched=None):
-        if messages_fetched:
-            # Messages were found in the last poll; schedule next poll immediately.
-            self.hub.call_soon(self._schedule_queue, queue)
-        else:
-            # No messages found (unsuccessful poll); respect polling_interval
-            # before the next attempt to avoid hammering SQS unnecessarily.
-            # Note: self.connection is the Transport instance (virtual transport
-            # establish_connection() returns self), so polling_interval is
-            # accessed directly on self.connection.
-            polling_interval = self.connection.polling_interval
-            if polling_interval:
-                self.hub.call_later(polling_interval, self._schedule_queue, queue)
-                return
-            self.hub.call_soon(self._schedule_queue, queue)
+        pass
 
     def _schedule_queue(self, queue):
-        if queue in self._active_queues:
-            if self.qos.can_consume():
-                self._get_bulk_async(
-                    queue, callback=promise(self._loop1, (queue,)),
-                )
-            else:
-                self._loop1(queue)
+        pass
 
     def _get_message_estimate(self, max_if_unlimited=SQS_MAX_MESSAGES):
-        maxcount = self.qos.can_consume_max_estimate()
-        return min(
-            max_if_unlimited if maxcount is None else max(maxcount, 1),
-            max_if_unlimited,
-        )
+        pass
 
     def _get_bulk_async(self, queue, callback=None):
-        maxcount = self._get_message_estimate()
-        if maxcount:
-            return self._get_async(queue, maxcount, callback=callback)
-        # Not allowed to consume, make sure to notify callback..
-        callback = ensure_promise(callback)
-        callback([])
-        return callback
+        pass
 
     def _get_async(self, queue, count=1, callback=None):
-        q_url = self._new_queue(queue)
-        qname = self.canonical_queue_name(queue)
-        return self._get_from_sqs(
-            queue_name=qname, queue_url=q_url, count=count,
-            connection=self.asynsqs(queue=qname),
-            callback=transform(
-                self._on_messages_ready, callback, q_url, queue
-            ),
-        )
+        pass
 
     def _on_messages_ready(self, queue, qname, messages):
-        if 'Messages' in messages and messages['Messages']:
-            callbacks = self.connection._callbacks
-            for msg in messages['Messages']:
-                msg_parsed = self._message_to_python(msg, qname, queue)
-                callbacks[qname](msg_parsed)
-            return len(messages['Messages'])
-        return 0
+        pass
 
     def _get_from_sqs(self, queue_name, queue_url,
                       connection, count=1, callback=None):
@@ -775,11 +697,7 @@ class Channel(virtual.Channel):
 
         Uses long polling and returns :class:`~vine.promises.promise`.
         """
-        return connection.receive_message(
-            queue_name, queue_url, number_messages=count,
-            wait_time_seconds=self.wait_time_seconds,
-            callback=callback,
-        )
+        pass
 
     def _restore(self, message,
                  unwanted_delivery_info=('sqs_message', 'sqs_queue')):
@@ -936,10 +854,7 @@ class Channel(virtual.Channel):
 
         :returns: An instance of SNS fanout class.
         """
-        # If an SNS class has not been initialised, then initialise it
-        if not self._fanout:
-            self._fanout = SNS(self)
-        return self._fanout
+        pass
 
     def remove_stale_sns_subscriptions(self, exchange_name: str) -> None:
         """Removes any stale SNS topic subscriptions.
@@ -950,9 +865,7 @@ class Channel(virtual.Channel):
         :param exchange_name: The exchange to check for stale subscriptions
         :return: None
         """
-        if self._exchange_is_fanout(exchange_name):
-            return self.fanout.subscriptions.cleanup(exchange_name)
-        return None
+        pass
 
     def _handle_sts_session(self, queue: str, q):
         """Checks if the STS token needs renewing for SQS.
@@ -1088,76 +1001,65 @@ class Channel(virtual.Channel):
 
     @property
     def conninfo(self):
-        return self.connection.client
+        pass
 
     @property
     def transport_options(self):
-        return self.connection.client.transport_options
+        pass
 
     @cached_property
     def visibility_timeout(self):
-        return (self.transport_options.get('visibility_timeout') or
-                self.default_visibility_timeout)
+        pass
 
     @cached_property
     def predefined_queues(self):
         """Map of queue_name to predefined queue settings."""
-        return self.transport_options.get("predefined_queues", {})
+        pass
 
     @cached_property
     def predefined_exchanges(self):
         """Map of exchange_name to predefined SNS client."""
-        return self.transport_options.get("predefined_exchanges", {})
+        pass
 
     @cached_property
     def queue_name_prefix(self):
-        return self.transport_options.get('queue_name_prefix', '')
+        pass
 
     @cached_property
     def supports_fanout(self):
-        return self.transport_options.get("supports_fanout", False)
+        pass
 
     @cached_property
     def region(self):
-        return (self.transport_options.get('region') or
-                boto3.Session().region_name or
-                self.default_region)
+        pass
 
     @cached_property
     def regioninfo(self):
-        return self.transport_options.get('regioninfo')
+        pass
 
     @cached_property
     def is_secure(self):
-        return self.transport_options.get('is_secure')
+        pass
 
     @cached_property
     def port(self):
-        return self.transport_options.get('port')
+        pass
 
     @cached_property
     def endpoint_url(self):
-        if self.conninfo.hostname is not None:
-            scheme = 'https' if self.is_secure else 'http'
-            if self.conninfo.port is not None:
-                port = f':{self.conninfo.port}'
-            else:
-                port = ""
-            return f"{scheme}://{self.conninfo.hostname}{port}"
+        pass
 
     @cached_property
     def wait_time_seconds(self) -> int:
-        return self.transport_options.get(
-            "wait_time_seconds", self.default_wait_time_seconds
-        )
+        pass
 
     @cached_property
     def sqs_base64_encoding(self):
-        return self.transport_options.get('sqs_base64_encoding', True)
+        pass
 
     @cached_property
     def fetch_message_attributes(self):
-        return self.transport_options.get('fetch_message_attributes', None)
+        pass
 
     @property
     def get_message_attributes(self) -> dict[str, Any]:
@@ -1171,47 +1073,7 @@ class Channel(virtual.Channel):
 
         :return: A dictionary with SQS message attribute fetch config.
         """
-        APPROXIMATE_RECEIVE_COUNT = 'ApproximateReceiveCount'
-        fetch = self.fetch_message_attributes
-        message_system_attrs = None
-        message_attrs = None
-
-        if fetch is None or isinstance(fetch, str):
-            return {
-                'MessageAttributeNames': [],
-                'MessageSystemAttributeNames': [APPROXIMATE_RECEIVE_COUNT],
-            }
-
-        if isinstance(fetch, list):
-            message_system_attrs = ['ALL'] if 'ALL'.lower() in [s.lower() for s in
-                                                                fetch] else (
-                list(set(fetch + [APPROXIMATE_RECEIVE_COUNT]))
-            )
-
-        elif isinstance(fetch, dict):
-            system = fetch.get('MessageSystemAttributeNames', [])
-            attrs = fetch.get('MessageAttributeNames', None)
-
-            if isinstance(system, list):
-                message_system_attrs = ['ALL'] if 'ALL'.lower() in [s.lower() for s in
-                                                                    system] else (
-                    list(set(system + [APPROXIMATE_RECEIVE_COUNT]))
-                )
-
-            if isinstance(attrs, list) and attrs:
-                message_attrs = ['ALL'] if 'ALL'.lower() in [s.lower() for s in
-                                                             attrs] else (
-                    list(set(attrs))
-                )
-
-        return {
-            "MessageAttributeNames": sorted(message_attrs) if message_attrs else [],
-            "MessageSystemAttributeNames": (
-                sorted(message_system_attrs)
-                if message_system_attrs
-                else [APPROXIMATE_RECEIVE_COUNT]
-            ),
-        }
+        pass
 
     def _put_fanout(self, exchange: str, message: dict, routing_key, **kwargs):
         """Add a message to fanout queues by adding a notification to an SNS topic, with subscribed SQS queues.
@@ -1478,4 +1340,4 @@ class Transport(virtual.Transport):
 
     @property
     def default_connection_params(self):
-        return {'port': self.default_port}
+        pass

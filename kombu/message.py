@@ -127,22 +127,10 @@ class Message:
         self._state = 'ACK'
 
     def ack_log_error(self, logger, errors, multiple=False):
-        try:
-            self.ack(multiple=multiple)
-        except BrokenPipeError as exc:
-            logger.critical("Couldn't ack %r, reason:%r",
-                            self.delivery_tag, exc, exc_info=True)
-            raise
-        except errors as exc:
-            logger.critical("Couldn't ack %r, reason:%r",
-                            self.delivery_tag, exc, exc_info=True)
+        pass
 
     def reject_log_error(self, logger, errors, requeue=False):
-        try:
-            self.reject(requeue=requeue)
-        except errors as exc:
-            logger.critical("Couldn't reject %r, reason: %r",
-                            self.delivery_tag, exc, exc_info=True)
+        pass
 
     def reject(self, requeue=False):
         """Reject this message.
@@ -208,12 +196,12 @@ class Message:
     @property
     def acknowledged(self):
         """Set to true if the message has been acknowledged."""
-        return self._state in ACK_STATES
+        pass
 
     @property
     def payload(self):
         """The decoded message body."""
-        return self._decoded_cache if self._decoded_cache else self.decode()
+        pass
 
     def __repr__(self):
         return '<{} object at {:#x} with details {!r}>'.format(

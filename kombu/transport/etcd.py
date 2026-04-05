@@ -237,7 +237,7 @@ class Channel(virtual.Channel):
 
     @cached_property
     def lock_value(self):
-        return f'{socket.gethostname()}.{os.getpid()}'
+        pass
 
 
 class Transport(virtual.Transport):
@@ -271,18 +271,7 @@ class Transport(virtual.Transport):
 
     def verify_connection(self, connection):
         """Verify the connection works."""
-        port = connection.client.port or self.default_port
-        host = connection.client.hostname or DEFAULT_HOST
-
-        logger.debug('Verify Etcd connection to %s:%s', host, port)
-
-        try:
-            etcd.Client(host=host, port=int(port))
-            return True
-        except ValueError:
-            pass
-
-        return False
+        pass
 
     def driver_version(self):
         """Return the version of the etcd library.
@@ -290,11 +279,4 @@ class Transport(virtual.Transport):
         .. note::
            python-etcd has no __version__. This is a workaround.
         """
-        try:
-            import pip.commands.freeze
-            for x in pip.commands.freeze.freeze():
-                if x.startswith('python-etcd'):
-                    return x.split('==')[1]
-        except (ImportError, IndexError):
-            logger.warning('Unable to find the python-etcd version.')
-            return 'Unknown'
+        pass
